@@ -1,0 +1,2056 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Nexus DC — Data Center Platform</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <style>
+    :root {
+      --bg-dark: #0d1117;
+      --bg-panel: #161b22;
+      --bg-elevated: #21262d;
+      --border: #30363d;
+      --text: #e6edf3;
+      --text-muted: #8b949e;
+      --accent: #00d4aa;
+      --accent-dim: #00d4aa33;
+      --danger: #f85149;
+      --warning: #d29922;
+      --success: #3fb950;
+      --radius: 10px;
+      --sidebar-w: 260px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Outfit', sans-serif;
+      background: var(--bg-dark);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      overflow-x: hidden;
+    }
+    .sidebar {
+      width: var(--sidebar-w);
+      background: var(--bg-panel);
+      border-right: 1px solid var(--border);
+      padding: 24px 0;
+      flex-shrink: 0;
+    }
+    .logo {
+      padding: 0 24px 24px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 20px;
+    }
+    .logo h1 { font-size: 1.25rem; font-weight: 700; color: var(--accent); }
+    .logo span { font-size: 0.7rem; color: var(--text-muted); font-weight: 400; }
+    .nav-section { margin-bottom: 16px; }
+    .nav-section-title {
+      font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.1em;
+      color: var(--text-muted); padding: 0 24px 8px;
+    }
+    .nav-item {
+      display: flex; align-items: center; gap: 12px; padding: 10px 24px;
+      color: var(--text-muted); text-decoration: none; font-size: 0.9rem;
+      border-left: 3px solid transparent; cursor: pointer; transition: all 0.2s;
+    }
+    .nav-item:hover { color: var(--text); background: var(--bg-elevated); }
+    .nav-item.active { color: var(--accent); border-left-color: var(--accent); background: var(--accent-dim); }
+    .nav-item svg { width: 20px; height: 20px; flex-shrink: 0; opacity: 0.8; }
+    .main { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+    .topbar {
+      height: 56px; padding: 0 28px; display: flex; align-items: center; justify-content: space-between;
+      background: var(--bg-panel); border-bottom: 1px solid var(--border);
+    }
+    .topbar h2 { font-size: 1.1rem; font-weight: 600; }
+    .topbar-right { display: flex; align-items: center; gap: 16px; }
+    .topbar-right .user { font-size: 0.85rem; color: var(--text-muted); }
+    .badge {
+      font-size: 0.7rem; padding: 2px 8px; border-radius: 999px;
+      background: var(--success); color: var(--bg-dark); font-weight: 600;
+    }
+    .content { flex: 1; padding: 24px; overflow-y: auto; }
+    .page { display: none; }
+    .page.active { display: block; }
+    .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 24px; }
+    .kpi-card {
+      background: var(--bg-panel); border: 1px solid var(--border); border-radius: var(--radius);
+      padding: 20px; transition: border-color 0.2s;
+    }
+    .kpi-card:hover { border-color: var(--accent); }
+    .kpi-card .label { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 4px; }
+    .kpi-card .value { font-size: 1.75rem; font-weight: 700; font-family: 'JetBrains Mono', monospace; color: var(--text); }
+    .kpi-card .value.accent { color: var(--accent); }
+    .kpi-card .value.success { color: var(--success); }
+    .kpi-card .sub { font-size: 0.75rem; color: var(--text-muted); margin-top: 4px; }
+    .card {
+      background: var(--bg-panel); border: 1px solid var(--border); border-radius: var(--radius);
+      padding: 20px; margin-bottom: 20px;
+    }
+    .card-title { font-size: 0.9rem; font-weight: 600; margin-bottom: 16px; display: flex; align-items: center; justify-content: space-between; }
+    .chart-wrap { height: 220px; position: relative; }
+    .chart-legend-inline { display: flex; gap: 16px; margin-bottom: 10px; font-size: 0.75rem; color: var(--text-muted); flex-wrap: wrap; }
+    .chart-legend-inline span { display: flex; align-items: center; gap: 6px; }
+    .chart-legend-inline .line-solid { width: 20px; height: 2px; background: var(--accent); }
+    .chart-legend-inline .line-dash { width: 20px; height: 2px; background: repeating-linear-gradient(90deg, #d29922 0, #d29922 4px, transparent 4px, transparent 8px); }
+    .chart-legend-inline .line-danger { width: 20px; height: 2px; background: var(--danger); }
+    .alert-list { list-style: none; }
+    .alert-item {
+      display: flex; align-items: flex-start; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--border);
+      font-size: 0.85rem;
+    }
+    .alert-item:last-child { border-bottom: none; }
+    .alert-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; margin-top: 6px; }
+    .alert-dot.critical { background: var(--danger); }
+    .alert-dot.warning { background: var(--warning); }
+    .alert-dot.info { background: var(--accent); }
+    .alert-time { color: var(--text-muted); font-size: 0.75rem; }
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    @media (max-width: 900px) { .two-col { grid-template-columns: 1fr; } }
+    .status-row { display: flex; align-items: center; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--border); }
+    .status-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--success); }
+    .status-dot.warn { background: var(--warning); }
+    .status-dot.err { background: var(--danger); }
+    .gauge-wrap { text-align: center; padding: 20px; }
+    .gauge-value { font-size: 2rem; font-weight: 700; font-family: 'JetBrains Mono', monospace; color: var(--accent); }
+    .rack-grid { display: grid; grid-template-columns: repeat(8, 1fr); gap: 6px; }
+    .rack-cell {
+      aspect-ratio: 1; background: var(--bg-elevated); border-radius: 6px; display: flex; align-items: center; justify-content: center;
+      font-size: 0.7rem; font-family: 'JetBrains Mono', monospace; color: var(--text-muted);
+      border: 1px solid var(--border); cursor: pointer; transition: all 0.2s;
+    }
+    .rack-cell:hover { border-color: var(--accent); color: var(--text); }
+    .rack-cell.util-70 { background: var(--accent-dim); color: var(--accent); }
+    .rack-cell.util-90 { background: rgba(210,153,34,0.2); color: var(--warning); }
+    .rack-cell.util-100 { background: rgba(248,81,73,0.2); color: var(--danger); }
+    .rack-cell .rack-temp { font-size:0.6rem; opacity:0.9; display:block; margin-top:1px; }
+    .rack-cell.animate { transition: background 0.8s ease, color 0.5s ease, box-shadow 0.5s ease; }
+    .rack-cell.pulse { animation: rackPulse 2.5s ease-in-out infinite; }
+    @keyframes rackPulse { 0%,100% { opacity: 1; } 50% { opacity: 0.85; } }
+    .heatmap-time { display: grid; gap: 2px; font-size: 0.7rem; }
+    .heatmap-time .row-label { color: var(--text-muted); padding: 4px 8px 0 0; text-align: right; }
+    .heatmap-time .cell { width: 100%; aspect-ratio: 1; max-width: 20px; border-radius: 3px; transition: transform 0.2s; }
+    .heatmap-time .cell:hover { transform: scale(1.15); }
+    .heatmap-legend { display: flex; align-items: center; gap: 8px; margin-top: 10px; font-size: 0.75rem; color: var(--text-muted); }
+    .heatmap-legend .bar { height: 8px; border-radius: 4px; flex: 1; max-width: 120px; }
+    .incident-timeline { display: flex; align-items: flex-end; gap: 4px; height: 100px; padding: 16px 0; }
+    .incident-timeline .slot { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; min-width: 40px; }
+    .incident-timeline .bubble { width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.65rem; font-weight: 600; color: #0d1117; flex-shrink: 0; transition: transform 0.2s; }
+    .incident-timeline .bubble:hover { transform: scale(1.2); }
+    .incident-timeline .bubble.preventive { background: var(--warning); box-shadow: 0 0 12px rgba(210,153,34,0.5); }
+    .incident-timeline .bubble.critical { background: var(--danger); box-shadow: 0 0 12px rgba(248,81,73,0.5); }
+    .incident-timeline .bubble.info { background: var(--accent); box-shadow: 0 0 12px rgba(0,212,170,0.4); }
+    .incident-timeline .slot-label { font-size: 0.65rem; color: var(--text-muted); }
+    .incidents-by-type { display: flex; gap: 16px; flex-wrap: wrap; justify-content: center; margin-top: 12px; }
+    .incidents-by-type .type-dot { width: 12px; height: 12px; border-radius: 50%; }
+    .incidents-by-type .type-dot.p { background: var(--warning); }
+    .incidents-by-type .type-dot.c { background: var(--danger); }
+    .incidents-by-type .type-dot.i { background: var(--accent); }
+    .card { box-shadow: 0 1px 2px rgba(0,0,0,0.2); }
+    .card-title { font-size: 0.95rem; }
+    .tabs { display: flex; gap: 4px; margin-bottom: 20px; }
+    .time-range { display: flex; gap: 4px; align-items: center; }
+    .time-range span { font-size: 0.75rem; color: var(--text-muted); margin-right: 4px; }
+    .time-range button { padding: 4px 10px; border-radius: 6px; border: 1px solid var(--border); background: var(--bg-elevated); color: var(--text-muted); cursor: pointer; font-size: 0.8rem; }
+    .time-range button.active { background: var(--accent-dim); color: var(--accent); border-color: var(--accent); }
+    .time-range button:hover:not(.active) { color: var(--text); }
+    .ml-explanation { font-size: 0.8rem; color: var(--text-muted); margin-top: 8px; padding: 8px 10px; background: var(--bg-elevated); border-radius: 6px; border-left: 3px solid var(--accent); }
+    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); display: none; align-items: center; justify-content: center; z-index: 1000; padding: 20px; }
+    .modal-overlay.open { display: flex; }
+    .modal-panel { background: var(--bg-panel); border: 1px solid var(--border); border-radius: var(--radius); max-width: 420px; width: 100%; max-height: 90vh; overflow-y: auto; box-shadow: 0 8px 32px rgba(0,0,0,0.4); }
+    .modal-header { padding: 16px 20px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+    .modal-header h3 { font-size: 1rem; margin: 0; }
+    .modal-close { background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 1.2rem; padding: 0 4px; line-height: 1; }
+    .modal-close:hover { color: var(--text); }
+    .modal-body { padding: 20px; }
+    .modal-body .kpi-card { margin-bottom: 12px; }
+    .modal-body .kpi-card:last-of-type { margin-bottom: 16px; }
+    .modal-alerts { font-size: 0.85rem; list-style: none; }
+    .modal-alerts li { padding: 6px 0; border-bottom: 1px solid var(--border); color: var(--text-muted); }
+    .modal-alerts li:last-child { border-bottom: none; }
+    .tabs { display: flex; gap: 4px; margin-bottom: 20px; }
+    .tab { padding: 8px 16px; border-radius: 8px; background: var(--bg-elevated); color: var(--text-muted); cursor: pointer; font-size: 0.9rem; border: 1px solid transparent; }
+    .tab:hover { color: var(--text); }
+    .tab.active { background: var(--accent-dim); color: var(--accent); border-color: var(--accent); }
+    .demo-footer { font-size: 0.75rem; color: var(--text-muted); padding: 16px 24px; border-top: 1px solid var(--border); }
+  </style>
+</head>
+<body>
+  <aside class="sidebar">
+    <div class="logo">
+      <h1>Nexus DC</h1>
+      <span>Thermal Control · Cooling · Equipment Degradation</span>
+    </div>
+    <nav class="nav-section">
+      <div class="nav-section-title">Platform</div>
+      <a class="nav-item active" data-page="overview">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+        Overview
+      </a>
+      <a class="nav-item" data-page="energy" style="display:none;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+        Thermal focus
+      </a>
+      <a class="nav-item" data-page="cooling">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a4 4 0 0 0-4 4v2a4 4 0 0 0 8 0V6a4 4 0 0 0-4-4z"/><path d="M5 12a7 7 0 0 0 14 0"/><path d="M8 15h8"/><path d="M9 18h6"/></svg>
+        Temperature
+      </a>
+      <a class="nav-item" data-page="dcim">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M6 8h.01M10 8h.01M14 8h.01M18 8h.01"/><path d="M6 12h.01M10 12h.01M14 12h.01M18 12h.01"/><path d="M6 16h.01M10 16h.01M14 16h.01M18 16h.01"/></svg>
+        Degradation
+      </a>
+    </nav>
+    <nav class="nav-section" style="display:none;">
+      <div class="nav-section-title">Services</div>
+      <a class="nav-item" data-page="alerts">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+        Alerts
+      </a>
+      <a class="nav-item" data-page="reports">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M16 13H8"/><path d="M16 17H8"/><path d="M10 9H8"/></svg>
+        Reports
+      </a>
+      <a class="nav-item" data-page="economics">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+        Economics &amp; pains
+      </a>
+      <a class="nav-item" data-page="market">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M9 22V12h6v10"/></svg>
+        Market &amp; competitors
+      </a>
+    </nav>
+  </aside>
+  <main class="main">
+    <header class="topbar">
+      <h2 id="page-title">Overview</h2>
+      <div class="topbar-right">
+        <div class="time-range" id="time-range-wrap">
+          <span>Period:</span>
+          <button type="button" class="active" data-range="24h">24 h</button>
+          <button type="button" data-range="7d">7 d</button>
+        </div>
+        <span class="badge">Demo · Moscow DC-1</span>
+        <span class="user">Operator</span>
+      </div>
+    </header>
+    <div class="content">
+      <div id="page-overview" class="page active">
+        <p style="color:var(--text-muted);font-size:0.9rem;margin-bottom:20px;">ML predicts temperature and component degradation (RUL) so cooling and maintenance teams can prevent throttling and failures.</p>
+        <div class="kpi-grid">
+          <div class="kpi-card">
+            <div class="label">Avg hall temp</div>
+            <div class="value accent">24.8 C</div>
+            <div class="sub">target corridor: 23-27 C</div>
+          </div>
+          <div class="kpi-card">
+            <div class="label">Racks at thermal risk</div>
+            <div class="value">7</div>
+            <div class="sub">next 72 h forecast</div>
+          </div>
+          <div class="kpi-card">
+            <div class="label">Components under degradation watch</div>
+            <div class="value success">12</div>
+            <div class="sub">RUL &lt; 60 days</div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-title">Power: actual vs ML forecast</div>
+          <p class="chart-legend-inline"><span><i class="line-solid"></i> Actual</span><span><i class="line-dash"></i> ML forecast</span><span style="opacity:0.7">▢ 80% CI</span></p>
+          <div class="chart-wrap"><canvas id="chart-power"></canvas></div>
+          <p class="ml-explanation" id="explain-power">Why: model uses daily load profile and job schedule; 80% confidence interval.</p>
+        </div>
+        <div class="two-col">
+          <div class="card">
+            <div class="card-title">Hall A temperature: actual vs ML forecast</div>
+            <p class="chart-legend-inline"><span><i class="line-solid"></i> Actual</span><span><i class="line-dash"></i> ML forecast</span><span style="opacity:0.7">▢ 80% CI</span></p>
+            <div class="chart-wrap"><canvas id="chart-temp-fact-ml"></canvas></div>
+            <p class="ml-explanation" id="explain-temp">Why: thermal inertia and load forecast from orchestrator; 80% CI.</p>
+          </div>
+          <div class="card">
+            <div class="card-title">Thermal map — Hall A (hourly scenario)</div>
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+              <span style="font-size:0.8rem;color:var(--text-muted);">Hour:</span>
+              <input id="temp-hour-slider" type="range" min="0" max="23" step="1" value="12" style="flex:1;" />
+              <strong id="temp-hour-label" style="min-width:56px;text-align:right;">12:00</strong>
+            </div>
+            <div class="chart-wrap"><canvas id="chart-thermal"></canvas></div>
+            <p class="ml-explanation" id="temp-hour-explain">At 12:00, ML predicts hall average near baseline with normal cooling margin.</p>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-title">Temperature by zone and hour (heatmap)</div>
+          <p style="color:var(--text-muted);font-size:0.8rem;margin-bottom:10px;">Rows — Hall A zones, columns — hours. Color = temperature °C. Hover for value.</p>
+          <div id="heatmap-time" class="heatmap-time"></div>
+          <div class="heatmap-legend">
+            <span>20 °C</span>
+            <div class="bar" style="background:linear-gradient(90deg, #00d4aa, #d29922, #f85149);"></div>
+            <span>30 °C</span>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-title">Where it’s burning (next 72 h)</div>
+          <div class="tabs" style="margin:6px 0 10px 0;">
+            <button class="tab active" data-burning-tab="all">All key signals</button>
+            <button class="tab" data-burning-tab="warning">Only warnings</button>
+          </div>
+          <p style="color:var(--text-muted);font-size:0.8rem;margin-bottom:12px;">Top priorities with an actionable next step (demo data).</p>
+          <ul class="alert-list" id="burning-list">
+            <li class="alert-item" data-severity="warning">
+              <span class="alert-dot warning"></span>
+              <div>
+                <strong>Cooling Guard:</strong> CDU-A3 leak-risk rising — 12% now → ~16% in 72 h.
+                <div style="color:var(--text-muted);font-size:0.75rem;margin-top:4px;">Recommended: schedule inspection and verify pressure control on the CDU-A3 circuit.</div>
+              </div>
+              <span class="alert-time">in 2–3 days</span>
+            </li>
+            <li class="alert-item" data-severity="info">
+              <span class="alert-dot info"></span>
+              <div>
+                <strong>Degradation Monitor:</strong> fan-bearing wear trend rising in Hall A high-load rows.
+                <div style="color:var(--text-muted);font-size:0.75rem;margin-top:4px;">Recommended: pre-order replacement set and schedule maintenance in low-load window.</div>
+              </div>
+              <span class="alert-time">today</span>
+            </li>
+            <li class="alert-item" data-severity="critical">
+              <span class="alert-dot critical"></span>
+              <div>
+                <strong>AI Thermal Model:</strong> predicted thermal throttling — risk concentrated in racks with short RUL.
+                <div style="color:var(--text-muted);font-size:0.75rem;margin-top:4px;">Recommended: apply temporary power cap and prioritize maintenance for low-RUL components.</div>
+              </div>
+              <span class="alert-time">before peak</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+      <div id="page-energy" class="page">
+        <div class="kpi-grid">
+          <div class="kpi-card">
+            <div class="label">Grid connection</div>
+            <div class="value success">Stable</div>
+            <div class="sub">2 feeders, backup active</div>
+          </div>
+          <div class="kpi-card">
+            <div class="label">Current consumption</div>
+            <div class="value">11.8 MW</div>
+            <div class="sub">daily peak: 12.1 MW</div>
+          </div>
+          <div class="kpi-card">
+            <div class="label">Renewables</div>
+            <div class="value accent">34%</div>
+            <div class="sub">target by 2030: 50%</div>
+          </div>
+          <div class="kpi-card">
+            <div class="label">Autonomy (BESS)</div>
+            <div class="value">4.2 h</div>
+            <div class="sub">at full load</div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-title">Energy Orchestrator — power sources</div>
+          <div class="status-row"><span class="status-dot"></span> Grid 1 (primary) — 6.2 MW</div>
+          <div class="status-row"><span class="status-dot"></span> Grid 2 (backup) — standby</div>
+          <div class="status-row"><span class="status-dot"></span> Gen — 100% ready</div>
+          <div class="status-row"><span class="status-dot"></span> BESS (batteries) — 98% charged</div>
+        </div>
+        <div class="card">
+          <div class="card-title">Grid connection and microgrid</div>
+          <div class="status-row"><span class="status-dot"></span> Current site: connected, 2 feeders</div>
+          <div class="status-row"><span class="status-dot"></span> Expansion +50 MW: queue ~14 mo (forecast)</div>
+          <div class="status-row"><span class="status-dot"></span> BESS: 2 MWh — 98% charged</div>
+          <div class="status-row"><span class="status-dot"></span> Backup on grid outage: up to 4.2 h</div>
+          <div class="status-row"><span class="status-dot"></span> Load shifting: recommendations active</div>
+        </div>
+        <div class="card">
+          <div class="card-title">Load forecast (7 days): actual vs ML</div>
+          <p class="chart-legend-inline"><span><i class="line-solid"></i> Actual</span><span><i class="line-dash"></i> ML forecast</span></p>
+          <div class="chart-wrap"><canvas id="chart-energy-forecast"></canvas></div>
+        </div>
+      </div>
+      <div id="page-cooling" class="page">
+        <p style="color:var(--text-muted);font-size:0.9rem;margin-bottom:20px;">Real-time thermal control: global zone heatmap, ML forecast, and airflow recommendations for each rack.</p>
+        <div class="card">
+          <div class="card-title">Demo: chip heatmap (2 racks, 24h operation)</div>
+          <p style="color:var(--text-muted);font-size:0.85rem;margin-bottom:10px;">Start with average temperature by rack. Then click a rack to open the chip-level heatmap for that rack.</p>
+          <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-bottom:10px;">
+            <span style="font-size:0.85rem;color:var(--text-muted);">View hour:</span>
+            <input type="range" min="0" max="23" step="1" value="12" id="chip-hour-slider" style="flex:1;min-width:220px;" />
+            <strong id="chip-hour-label">12:00</strong>
+          </div>
+          <div id="chip-heatmap-grid" class="heatmap-time" style="margin-bottom:14px;"></div>
+          <div style="font-size:0.82rem;color:var(--text-muted);margin:6px 0;">Selected rack details (chips)</div>
+          <div id="chip-detail-heatmap-grid" class="heatmap-time" style="margin-bottom:14px;"></div>
+          <div class="kpi-grid" style="grid-template-columns:repeat(auto-fit, minmax(180px, 1fr));">
+            <div class="kpi-card"><div class="label">Selected</div><div class="value" id="chip-selected-id">R1 (avg)</div><div class="sub">rack/chip</div></div>
+            <div class="kpi-card"><div class="label">Now temp</div><div class="value" id="chip-selected-now">—</div><div class="sub">current hour</div></div>
+            <div class="kpi-card"><div class="label">ML +4h</div><div class="value accent" id="chip-selected-ml4">—</div><div class="sub">model forecast</div></div>
+            <div class="kpi-card"><div class="label">Airflow recommendation</div><div class="value success" id="chip-selected-air">—</div><div class="sub">increase airflow</div></div>
+          </div>
+          <div class="two-col" style="margin-top:12px;">
+            <div class="card" style="margin:0;">
+              <div class="card-title">Temperature: history and forecast</div>
+              <div class="chart-wrap"><canvas id="chart-chip-temp-forecast"></canvas></div>
+            </div>
+            <div class="card" style="margin:0;">
+              <div class="card-title">Cooling: required airflow</div>
+              <div class="chart-wrap"><canvas id="chart-chip-cooling"></canvas></div>
+            </div>
+          </div>
+          <div class="ml-explanation" id="chip-demo-recommendation">A recommendation will appear after selecting a heatmap cell.</div>
+        </div>
+        <div class="kpi-grid">
+          <div class="kpi-card">
+            <div class="label">Hot racks now</div>
+            <div class="value">—</div>
+            <div class="sub" id="temp-hot-racks-sub">loading...</div>
+          </div>
+          <div class="kpi-card">
+            <div class="label">Avg inlet temp</div>
+            <div class="value accent" id="temp-avg-inlet">—</div>
+            <div class="sub">across all zones</div>
+          </div>
+          <div class="kpi-card">
+            <div class="label">Peak forecast (24h)</div>
+            <div class="value" id="temp-peak-forecast">—</div>
+            <div class="sub">model forecast</div>
+          </div>
+          <div class="kpi-card">
+            <div class="label">Required airflow increase</div>
+            <div class="value success" id="temp-airflow-need">—</div>
+            <div class="sub">for hot racks</div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-title">Cold-water leak risk: actual vs ML forecast</div>
+          <p class="chart-legend-inline"><span><i class="line-solid"></i> Current leak risk index</span><span><i class="line-dash"></i> ML leak-risk forecast</span><span><i class="line-danger"></i> Critical threshold</span></p>
+          <div class="chart-wrap"><canvas id="chart-cooling-temp-ml"></canvas></div>
+        </div>
+        <div class="card">
+          <div class="card-title">Leak risk over time: monitoring and ML forecast</div>
+          <p class="chart-legend-inline"><span><i class="line-solid"></i> Current risk index</span><span><i class="line-dash"></i> ML risk forecast</span><span><i class="line-danger"></i> Critical alert threshold (40%)</span></p>
+          <div class="chart-wrap"><canvas id="chart-leak-risk-time"></canvas></div>
+        </div>
+        <div class="two-col">
+          <div class="card">
+            <div class="card-title">Cooling Guard — leak risk index (current)</div>
+            <div class="gauge-wrap">
+              <div class="gauge-value">12%</div>
+              <div class="sub">ML: normal, 72 h prediction — stable</div>
+              <div class="chart-wrap" style="height:100px"><canvas id="chart-leak-risk"></canvas></div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-title">RUL (remaining useful life) — ML model</div>
+            <p style="color:var(--text-muted);font-size:0.85rem;margin-bottom:12px;">Estimate of remaining time to scheduled maintenance from pressure, vibration, coolant chemistry.</p>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+              <div class="kpi-card" style="padding:12px;"><div class="label">CDU-A3 (under watch)</div><div class="value accent" style="font-size:1.1rem;">18 days</div><div class="sub">RUL to recommended inspection</div></div>
+              <div class="kpi-card" style="padding:12px;"><div class="label">Quick Connectors, zone B</div><div class="value success" style="font-size:1.1rem;">340 days</div><div class="sub">RUL normal</div></div>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-title">Scenario: Power cap & cooling response</div>
+          <p style="color:var(--text-muted);font-size:0.85rem;margin-bottom:12px;">Choose a power capping level. The demo estimates energy savings and how it can reduce failure risk.</p>
+          <div style="display:flex;gap:14px;align-items:center;flex-wrap:wrap;">
+            <div style="flex:1;min-width:240px;">
+              <div style="font-size:0.85rem;color:var(--text-muted);margin-bottom:6px;">Power cap: <span id="cap-level" style="color:var(--accent);font-weight:700;">10%</span></div>
+              <input type="range" min="0" max="30" step="5" value="10" id="cap-range" style="width:100%;" />
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;min-width:260px;">
+              <div class="kpi-card" style="padding:12px;">
+                <div class="label">Estimated energy savings</div>
+                <div class="value accent" id="cap-savings">8.0%</div>
+                <div class="sub">demo estimate</div>
+              </div>
+              <div class="kpi-card" style="padding:12px;">
+                <div class="label">Risk reduction (next 72 h)</div>
+                <div class="value success" id="cap-risk">4.0%</div>
+                <div class="sub">towards safer zone</div>
+              </div>
+            </div>
+          </div>
+          <div class="ml-explanation" id="cap-explain">At 10% cap, estimated energy savings are 8.0% with an expected failure-risk drop of 4.0 percentage points.</div>
+        </div>
+        <div class="card">
+          <div class="card-title">Circuit pressure: actual vs ML forecast</div>
+          <p class="chart-legend-inline"><span><i class="line-solid"></i> Actual</span><span><i class="line-dash"></i> ML forecast</span></p>
+          <div class="chart-wrap"><canvas id="chart-cooling"></canvas></div>
+        </div>
+        <div class="card">
+          <div class="card-title">Leak operations log</div>
+          <ul class="alert-list" style="margin-top:4px;">
+            <li class="alert-item"><span class="alert-dot warning"></span><div><strong>R2 / water loop:</strong> leak-risk trend increased during peak load window.<div style="color:var(--text-muted);font-size:0.75rem;margin-top:4px;">Action: increase cooling flow on R2 and reduce on R1 by matching ratio to keep balanced pressure.</div></div><span class="alert-time">today</span></li>
+            <li class="alert-item"><span class="alert-dot info"></span><div><strong>R1 / return line:</strong> pressure stabilized after balancing.<div style="color:var(--text-muted);font-size:0.75rem;margin-top:4px;">Action: continue monitoring and keep differential pressure within target range.</div></div><span class="alert-time">1 h ago</span></li>
+          </ul>
+        </div>
+        <div class="card">
+          <div class="card-title">Cooling units (CDU)</div>
+          <div style="display:grid;grid-template-columns:repeat(auto-fill, minmax(200px,1fr));gap:12px;">
+            <div class="status-row" style="border:1px solid var(--border);border-radius:8px;padding:12px;">CDU-A1 · 18 °C · 2.3 bar</div>
+            <div class="status-row" style="border:1px solid var(--border);border-radius:8px;padding:12px;">CDU-A2 · 18 °C · 2.4 bar</div>
+            <div class="status-row" style="border:1px solid var(--warning);border-radius:8px;padding:12px;">CDU-A3 · 19 °C · 2.5 bar &#x26A0;</div>
+            <div class="status-row" style="border:1px solid var(--border);border-radius:8px;padding:12px;">CDU-B1 … B5 · normal</div>
+          </div>
+        </div>
+      </div>
+      <div id="page-dcim" class="page">
+        <p style="color:var(--text-muted);font-size:0.9rem;margin-bottom:20px;">Degradation view: where risk rises fastest, how it correlates with load, and which racks require service first.</p>
+        <div class="kpi-grid">
+          <div class="kpi-card"><div class="label">Fleet health index</div><div class="value success" id="deg-health-index">—</div><div class="sub">100 = healthy fleet</div></div>
+          <div class="kpi-card"><div class="label">RUL &lt; 30d</div><div class="value" id="deg-rul-30">—</div><div class="sub">critical backlog</div></div>
+          <div class="kpi-card"><div class="label">RUL 30-60d</div><div class="value accent" id="deg-rul-60">—</div><div class="sub">planned maintenance</div></div>
+          <div class="kpi-card"><div class="label">7d risk drift</div><div class="value" id="deg-risk-drift">—</div><div class="sub">risk change</div></div>
+        </div>
+        <div class="card">
+          <div class="card-title">Degradation map for all racks (click to select)</div>
+          <p style="color:var(--text-muted);font-size:0.83rem;margin-bottom:10px;">Color = degradation level (red means higher risk). Click a rack to open forecast and recommendations.</p>
+          <div class="rack-grid" id="deg-rack-overview-grid"></div>
+        </div>
+        <div class="two-col">
+          <div class="card">
+            <div class="card-title">Top degrading racks</div>
+            <div class="chart-wrap"><canvas id="chart-racks"></canvas></div>
+          </div>
+          <div class="card">
+            <div class="card-title">RUL bucket distribution</div>
+            <div class="chart-wrap"><canvas id="chart-load"></canvas></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-title">Rack list by selected RUL bucket</div>
+          <div class="ml-explanation" id="deg-bucket-hint">Click a RUL bucket segment to see the rack list.</div>
+          <ul class="alert-list" id="deg-bucket-list"></ul>
+        </div>
+        <div class="card">
+          <div class="card-title">Selected rack: RUL scenario (now -> forecast)</div>
+          <div style="display:flex;gap:12px;align-items:center;margin-bottom:12px;flex-wrap:wrap;">
+            <label for="degr-rack-select" style="color:var(--text-muted);font-size:0.85rem;">Rack:</label>
+            <select id="degr-rack-select" style="background:var(--bg-elevated);color:var(--text);border:1px solid var(--border);border-radius:6px;padding:6px 8px;"></select>
+          </div>
+          <div class="chart-wrap"><canvas id="chart-degr-rack"></canvas></div>
+          <div class="ml-explanation" id="degr-rack-explain">Loading degradation data...</div>
+        </div>
+        <div class="card">
+          <div class="card-title">Degradation causes (selected rack)</div>
+          <div class="chart-wrap"><canvas id="chart-rul-reasons"></canvas></div>
+          <div class="ml-explanation" id="deg-selected-reasons-text">Select a rack to view causes and recommendations.</div>
+        </div>
+        <div class="card">
+          <div class="card-title">Why these racks degrade and what to do</div>
+          <ul class="alert-list" id="degr-top-list"></ul>
+        </div>
+      </div>
+      <div id="page-alerts" class="page">
+        <div class="tabs">
+          <button class="tab active" data-alert-tab="all">All</button>
+          <button class="tab" data-alert-tab="critical">Critical</button>
+          <button class="tab" data-alert-tab="warning">Warnings</button>
+        </div>
+        <div class="card">
+          <div class="card-title">Alert log</div>
+          <ul class="alert-list" id="alerts-list">
+            <li class="alert-item" data-severity="warning"><span class="alert-dot warning"></span><div><strong>Cooling Guard:</strong> CDU-A3 pressure rising (+5%).<div style="color:var(--text-muted);font-size:0.75rem;margin-top:4px;">Next action: schedule inspection and confirm pressure control within 2.2–2.6 bar.</div></div><span class="alert-time">1 h ago</span></li>
+            <li class="alert-item" data-severity="critical"><span class="alert-dot critical"></span><div><strong>AI DCIM:</strong> Predicted thermal throttling risk on top racks.<div style="color:var(--text-muted);font-size:0.75rem;margin-top:4px;">Next action: pre-check cooling fans and airflow path; apply temporary power cap if needed.</div></div><span class="alert-time">today</span></li>
+            <li class="alert-item" data-severity="info"><span class="alert-dot info"></span><div><strong>Energy:</strong> Load shifting recommendation (23:00–06:00) to reduce tariff by ~8%.<div style="color:var(--text-muted);font-size:0.75rem;margin-top:4px;">Next action: confirm the load shifting plan and keep within the power limit.</div></div><span class="alert-time">10 min ago</span></li>
+            <li class="alert-item" data-severity="info"><span class="alert-dot info"></span><div><strong>AI DCIM:</strong> Peak forecast tomorrow 14:00 — ~13.2 MW (buffer OK).<div style="color:var(--text-muted);font-size:0.75rem;margin-top:4px;">Next action: verify cooling guard triggers are armed for the peak window.</div></div><span class="alert-time">2 h ago</span></li>
+            <li class="alert-item" data-severity="info"><span class="alert-dot info"></span><div><strong>Cooling Guard:</strong> Preventive trigger — circuit B2. Check passed.<div style="color:var(--text-muted);font-size:0.75rem;margin-top:4px;">Next action: keep monitoring; no immediate intervention required.</div></div><span class="alert-time">5 days ago</span></li>
+          </ul>
+        </div>
+      </div>
+      <div id="page-economics" class="page">
+        <p style="color:var(--text-muted);font-size:0.9rem;margin-bottom:20px;">Savings, delay risks, ROI, and industry pains — everything related to cost and strategy.</p>
+        <div class="kpi-grid">
+          <div class="kpi-card">
+            <div class="label">OPEX savings</div>
+            <div class="value success">18%</div>
+            <div class="sub">in last 30 days</div>
+          </div>
+          <div class="kpi-card">
+            <div class="label">Cost of Delay (6 mo)</div>
+            <div class="value" style="font-size:1.4rem;">~$2.4M</div>
+            <div class="sub">if expansion delayed</div>
+          </div>
+          <div class="kpi-card">
+            <div class="label">Predictive maintenance ROI</div>
+            <div class="value accent">267%</div>
+            <div class="sub">over 3 years (benchmark)</div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-title">Grid Interconnection (Grid Deadlock)</div>
+          <p style="color:var(--text-muted);font-size:0.85rem;margin-bottom:12px;">Typical interconnection delays by region: 18–24 mo (US NoVa), up to 36 mo (EU). Financial impact of delays.</p>
+          <div class="status-row"><span class="status-dot"></span> Current site: connected, 2 feeders</div>
+          <div class="status-row"><span class="status-dot warn"></span> Expansion +50 MW: queue ~14 mo (forecast)</div>
+          <div class="kpi-card" style="margin-top:12px;padding:12px;">
+            <div class="label">Cost of Delay (if delayed by 6 mo)</div>
+            <div class="value" style="font-size:1.25rem;">~$2.4M</div>
+            <div class="sub">lost revenue + SLA penalties</div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-title">Corrosion and Quick Connectors (Pain 1) — economics</div>
+          <p style="color:var(--text-muted);font-size:0.85rem;margin-bottom:12px;">Industry data: 35% of failures — metal corrosion, 28% — seal degradation. Predictive monitoring reduces risk and cost.</p>
+          <div class="two-col" style="gap:12px;">
+            <div class="kpi-card" style="padding:12px;"><div class="label">Circuit corrosion index</div><div class="value success" style="font-size:1.1rem;">Normal</div><div class="sub">coolant chemistry in spec</div></div>
+            <div class="kpi-card" style="padding:12px;"><div class="label">Seal degradation</div><div class="value" style="font-size:1.1rem;">2 units</div><div class="sub">scheduled inspection within 30 days</div></div>
+          </div>
+          <div style="margin-top:12px;font-size:0.8rem;color:var(--text-muted);">ROI from anti-corrosion and predictive measures: up to 267% over 3 years (benchmark per report).</div>
+        </div>
+        <div class="card">
+          <div class="card-title">Key pains 2026 (per reports)</div>
+          <ul style="list-style:none;font-size:0.9rem;">
+            <li style="padding:8px 0;border-bottom:1px solid var(--border);"><span style="color:var(--danger);">●</span> <strong>Pain 1:</strong> Corrosion, Quick Connectors, seal degradation — predictive leak diagnostics</li>
+            <li style="padding:8px 0;border-bottom:1px solid var(--border);"><span style="color:var(--warning);">●</span> <strong>Pain 2:</strong> Grid Deadlock — delays 18–36 mo, Cost of Delay $2–4M/mo per 50 MW</li>
+            <li style="padding:8px 0;"><span style="color:var(--accent);">●</span> <strong>Pain 4:</strong> DCIM without API to K8s — thermal spikes, GPU throttling</li>
+          </ul>
+        </div>
+        <div class="card">
+          <div class="card-title">Competitor comparison: pain coverage</div>
+          <p style="color:var(--text-muted);font-size:0.85rem;margin-bottom:12px;">Per 2026 reports: three key pains (Grid, Cooling/leaks, DCIM–K8s). Taller bar = more pains addressed by the solution.</p>
+          <div class="chart-wrap" style="height:240px;"><canvas id="chart-competitors-pains"></canvas></div>
+        </div>
+        <div class="card">
+          <div class="card-title">Competitors and pain coverage (Market Intelligence)</div>
+          <p style="color:var(--text-muted);font-size:0.85rem;margin-bottom:16px;">Who addresses which pains. Nexus DC — single platform (Energy + Cooling + AI DCIM) with synergy &gt;3x ROI.</p>
+          <div class="competitor-table-wrap" style="overflow-x:auto;">
+            <table class="competitor-table" style="width:100%;border-collapse:collapse;font-size:0.85rem;">
+              <thead>
+                <tr style="border-bottom:1px solid var(--border);text-align:left;">
+                  <th style="padding:10px;">Company</th>
+                  <th style="padding:10px;">Solution (USP)</th>
+                  <th style="padding:10px;">Pains / focus</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr style="border-bottom:1px solid var(--border);"><td style="padding:10px;"><strong>Vertiv</strong></td><td style="padding:10px;">End-to-end direct-to-chip liquid cooling</td><td style="padding:10px;">Cooling, scale &gt;100 MW</td></tr>
+                <tr style="border-bottom:1px solid var(--border);"><td style="padding:10px;"><strong>Schneider Electric</strong></td><td style="padding:10px;">Modular, prefabricated high-density rooms</td><td style="padding:10px;">Deployment speed, cooling</td></tr>
+                <tr style="border-bottom:1px solid var(--border);"><td style="padding:10px;"><strong>Equinix</strong></td><td style="padding:10px;">Rollout DLC in 45 metros, 30 kW+ per rack</td><td style="padding:10px;">Hidden cooling costs, liquid cooling risks</td></tr>
+                <tr style="border-bottom:1px solid var(--border);"><td style="padding:10px;"><strong>Meukron Technologies</strong></td><td style="padding:10px;">Microfluidic thermal management (glass/polymer)</td><td style="padding:10px;">Micro-leaks, immersion cooling failures</td></tr>
+                <tr style="border-bottom:1px solid var(--border);"><td style="padding:10px;"><strong>Octorange</strong></td><td style="padding:10px;">Thermal management for batteries/energy systems</td><td style="padding:10px;">Microgrids, unpredictable OpEx</td></tr>
+                <tr style="border-bottom:1px solid var(--border);"><td style="padding:10px;"><strong>Aligned Data Centers</strong></td><td style="padding:10px;">Consolidation of 80+ sites for AI, liquid cooling</td><td style="padding:10px;">Interconnection delays, power shortage</td></tr>
+                <tr style="border-bottom:1px solid var(--border);"><td style="padding:10px;"><strong>Nexus DC</strong></td><td style="padding:10px;color:var(--accent);">Energy Orchestrator + Cooling Guard + AI DCIM</td><td style="padding:10px;">Grid Deadlock, leaks/corrosion, DCIM–K8s gap, thermal inertia</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      <div id="page-market" class="page">
+        <p style="color:var(--text-muted);font-size:0.9rem;">Positioning and competitors — see the <strong>Economics &amp; pains</strong> tab (pains 2026, Cost of Delay, ROI, competitor table).</p>
+      </div>
+      <div id="page-reports" class="page">
+        <div class="card">
+          <div class="card-title">Ready reports</div>
+          <div style="display:grid;grid-template-columns:repeat(auto-fill, minmax(240px,1fr));gap:16px;">
+            <div class="report-card" style="border:1px solid var(--border);border-radius:var(--radius);padding:20px;cursor:pointer;">
+              <div style="font-weight:600;margin-bottom:4px;">PUE and energy efficiency</div>
+              <div style="font-size:0.8rem;color:var(--text-muted);">Last 30 days</div>
+            </div>
+            <div class="report-card" style="border:1px solid var(--border);border-radius:var(--radius);padding:20px;cursor:pointer;">
+              <div style="font-weight:600;margin-bottom:4px;">Cooling Guard — diagnostics</div>
+              <div style="font-size:0.8rem;color:var(--text-muted);">Risks and predictive events</div>
+            </div>
+            <div class="report-card" style="border:1px solid var(--border);border-radius:var(--radius);padding:20px;cursor:pointer;">
+              <div style="font-weight:600;margin-bottom:4px;">Load and orchestration</div>
+              <div style="font-size:0.8rem;color:var(--text-muted);">AI DCIM — recommendations</div>
+            </div>
+            <div class="report-card" style="border:1px solid var(--border);border-radius:var(--radius);padding:20px;cursor:pointer;">
+              <div style="font-weight:600;margin-bottom:4px;">Grid &amp; Cost of Delay</div>
+              <div style="font-size:0.8rem;color:var(--text-muted);">Interconnection delays, risks, TCO</div>
+            </div>
+            <div class="report-card" style="border:1px solid var(--border);border-radius:var(--radius);padding:20px;cursor:pointer;">
+              <div style="font-weight:600;margin-bottom:4px;">Competitive Intelligence</div>
+              <div style="font-size:0.8rem;color:var(--text-muted);">Market, competitors, pains 2026</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <footer class="demo-footer">Demo mode · Nexus DC Platform (Energy Orchestrator + Cooling Guard + AI DCIM) · Sample data</footer>
+  </main>
+  <div class="modal-overlay" id="rack-modal" aria-hidden="true">
+    <div class="modal-panel">
+      <div class="modal-header">
+        <h3 id="rack-modal-title">Rack R1</h3>
+        <button type="button" class="modal-close" id="rack-modal-close" aria-label="Close">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="kpi-grid" style="grid-template-columns:1fr 1fr;">
+          <div class="kpi-card">
+            <div class="label">Load</div>
+            <div class="value" id="rack-modal-util">—</div>
+            <div class="sub">% of power</div>
+          </div>
+          <div class="kpi-card">
+            <div class="label">Temperature</div>
+            <div class="value accent" id="rack-modal-temp">—</div>
+            <div class="sub">°C now</div>
+          </div>
+          <div class="kpi-card">
+            <div class="label">RUL</div>
+            <div class="value success" id="rack-modal-rul">—</div>
+            <div class="sub">to scheduled inspection</div>
+          </div>
+          <div class="kpi-card">
+            <div class="label">Zone</div>
+            <div class="value" id="rack-modal-zone">—</div>
+            <div class="sub">Hall A</div>
+          </div>
+        </div>
+        <div style="font-size:0.85rem;font-weight:600;margin-bottom:8px;">Failure risk & recommended action</div>
+        <div class="ml-explanation" id="rack-modal-risk-explain" style="margin-bottom:12px;">Loading...</div>
+        <div style="font-size:0.85rem;font-weight:600;margin-bottom:8px;">Rack events (last 30 days)</div>
+        <ul class="modal-alerts" id="rack-modal-alerts"></ul>
+      </div>
+    </div>
+  </div>
+  <script>
+    const titles = { overview: 'Overview', cooling: 'Temperature', dcim: 'Degradation' };
+    function parseCsv(text) {
+      const lines = text.trim().split(/\r?\n/);
+      if (!lines.length) return [];
+      const headers = lines[0].split(',').map(h => h.trim());
+      return lines.slice(1).map(line => {
+        const cols = line.split(',');
+        const obj = {};
+        headers.forEach((h, idx) => { obj[h] = (cols[idx] || '').trim(); });
+        return obj;
+      });
+    }
+    function timeAgo(isoTs) {
+      const ms = Date.now() - new Date(isoTs).getTime();
+      if (!Number.isFinite(ms) || ms < 0) return 'now';
+      const m = Math.floor(ms / 60000);
+      if (m < 60) return m + ' min ago';
+      const h = Math.floor(m / 60);
+      if (h < 24) return h + ' h ago';
+      const d = Math.floor(h / 24);
+      return d + ' day' + (d > 1 ? 's' : '') + ' ago';
+    }
+    function severityToDot(sev) {
+      if (sev === 'critical') return 'critical';
+      if (sev === 'warning') return 'warning';
+      return 'info';
+    }
+    function updateAlertsListFromSynthetic(rows) {
+      const alertsList = document.getElementById('alerts-list');
+      if (!alertsList || !rows || !rows.length) return;
+      const latest = rows
+        .slice()
+        .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
+        .slice(0, 14);
+      alertsList.innerHTML = latest.map(r => {
+        const sev = severityToDot((r.severity || '').toLowerCase());
+        const reason = r.reason || 'Operational alert';
+        const action = r.recommended_action || 'Investigate and confirm mitigation.';
+        const device = r.device_id || 'device';
+        return '<li class="alert-item" data-severity="' + sev + '">' +
+          '<span class="alert-dot ' + sev + '"></span>' +
+          '<div><strong>' + device + ':</strong> ' + reason +
+          '<div style="color:var(--text-muted);font-size:0.75rem;margin-top:4px;">Next action: ' + action + '</div></div>' +
+          '<span class="alert-time">' + timeAgo(r.timestamp) + '</span></li>';
+      }).join('');
+    }
+    function updateBurningListFromSynthetic(incidents) {
+      const burningList = document.getElementById('burning-list');
+      if (!burningList || !incidents || !incidents.length) return;
+      const top = incidents.slice(0, 3);
+      burningList.innerHTML = top.map(i => {
+        const sev = severityToDot((i.severity || '').toLowerCase());
+        const label = (i.rack_id || 'Rack') + ' — ' + (i.dominant_reason || 'Elevated operational risk');
+        const action = i.recommended_action || 'Run preventive check before peak window.';
+        return '<li class="alert-item">' +
+          '<span class="alert-dot ' + sev + '"></span>' +
+          '<div><strong>Priority:</strong> ' + label +
+          '<div style="color:var(--text-muted);font-size:0.75rem;margin-top:4px;">Recommended: ' + action + '</div></div>' +
+          '<span class="alert-time">' + (i.alerts_count || 0) + ' alerts</span></li>';
+      }).join('');
+    }
+    function bindBurningTabs() {
+      const tabs = document.querySelectorAll('[data-burning-tab]');
+      const list = document.getElementById('burning-list');
+      if (!tabs.length || !list) return;
+      tabs.forEach(btn => {
+        btn.addEventListener('click', function() {
+          tabs.forEach(t => t.classList.remove('active'));
+          this.classList.add('active');
+          const mode = this.dataset.burningTab;
+          list.querySelectorAll('.alert-item').forEach(li => {
+            const sev = li.dataset.severity || 'info';
+            li.style.display = (mode === 'all' || sev === 'warning' || sev === 'critical') ? 'flex' : 'none';
+            if (mode === 'warning' && sev === 'info') li.style.display = 'none';
+          });
+        });
+      });
+    }
+    const syntheticState = {
+      telemetry: [],
+      alerts: [],
+      incidents: [],
+      rackLatestByDisplayId: {},
+      demoScenario: null
+    };
+    function applyDemoScenario(sc) {
+      if (!sc || !sc.temperature || !sc.degradation) return;
+      syntheticState.demoScenario = sc;
+      const t = sc.temperature;
+      const setText = (id, value) => { const el = document.getElementById(id); if (el) el.textContent = value; };
+      setText('temp-avg-inlet', Number(t.avg_inlet_temp_c || 0).toFixed(1) + ' C');
+      setText('temp-peak-forecast', Number(t.peak_forecast_c || 0).toFixed(1) + ' C');
+      setText('temp-airflow-need', '+' + (t.avg_airflow_boost_pct || 0) + '%');
+      setText('temp-hot-racks-sub', '>= 28 C: ' + (t.hot_racks || 0));
+      const firstKpiVal = document.querySelector('#page-cooling .kpi-card .value');
+      if (firstKpiVal) firstKpiVal.textContent = String(t.hot_racks || 0);
+
+      const racks = t.racks_current || [];
+      const grid = document.getElementById('temp-rack-grid');
+      if (grid && racks.length) {
+        grid.innerHTML = '';
+        syntheticState.rackLatestByDisplayId = {};
+        racks.forEach((r, idx) => {
+          const cell = document.createElement('div');
+          const util = Math.max(0, Math.min(99, Math.round(Number(r.load_pct || 0))));
+          cell.className = 'rack-cell animate pulse util-' + (util >= 90 ? 90 : util >= 70 ? 70 : 0);
+          cell.innerHTML = r.rack_id + '<span class="rack-temp">' + Number(r.temp_c).toFixed(1) + '°</span>';
+          cell.title = r.rack_id + ' — airflow +' + r.airflow_boost_pct + '%';
+          syntheticState.rackLatestByDisplayId[idx + 1] = {
+            rackId: r.rack_id,
+            temp: Number(r.temp_c),
+            pred: Number(r.pred_temp_c),
+            util,
+            airflowBoost: Number(r.airflow_boost_pct)
+          };
+          cell.addEventListener('click', function() {
+            setText('temp-selected-rack', r.rack_id);
+            setText('temp-selected-now', Number(r.temp_c).toFixed(1) + ' C');
+            setText('temp-selected-ml', Number(r.pred_temp_c).toFixed(1) + ' C');
+            setText('temp-selected-airflow', '+' + r.airflow_boost_pct + '%');
+          });
+          grid.appendChild(cell);
+        });
+      }
+
+      const d = sc.degradation;
+      const topRacks = Array.isArray(d.top_racks) ? d.top_racks : [];
+      const rulLt30 = d.rul_lt_30 != null ? d.rul_lt_30 : topRacks.filter(x => (x.rul_days || 999) < 30).length;
+      const rul30_60 = d.rul_30_60 != null ? d.rul_30_60 : topRacks.filter(x => (x.rul_days || 999) >= 30 && (x.rul_days || 0) < 60).length;
+      const avgDegr = d.avg_degr_score != null
+        ? Number(d.avg_degr_score)
+        : (topRacks.length ? topRacks.reduce((a, b) => a + Number(b.degr_score || 0), 0) / topRacks.length : 45);
+      const healthIdx = Math.max(0, 100 - avgDegr);
+      const riskDrift = +(avgDegr * 0.09).toFixed(1);
+      setText('deg-rul-30', String(rulLt30));
+      setText('deg-rul-60', String(rul30_60));
+      setText('deg-health-index', healthIdx.toFixed(1));
+      setText('deg-risk-drift', '+' + riskDrift + '%');
+
+      if (window.chartRacks && (d.top_racks || []).length) {
+        window.chartRacks.data.labels = d.top_racks.map(x => x.rack_id);
+        window.chartRacks.data.datasets[0].data = d.top_racks.map(x => x.degr_score);
+        window.chartRacks.update();
+      }
+      const topList = document.getElementById('degr-top-list');
+      if (topList && (d.top_racks || []).length) {
+        topList.innerHTML = d.top_racks.slice(0, 5).map(x =>
+          '<li class="alert-item"><span class="alert-dot warning"></span><div><strong>' + x.rack_id + ':</strong> ' + x.reason +
+          '<div style="color:var(--text-muted);font-size:0.75rem;margin-top:4px;">Recommendation: ' + x.recommendation + '</div></div>' +
+          '<span class="alert-time">RUL ' + x.rul_days + ' d</span></li>'
+        ).join('');
+      }
+      const sel = document.getElementById('degr-rack-select');
+      if (sel && (t.racks_hourly || []).length) {
+        sel.innerHTML = t.racks_hourly.map(r => '<option value="' + r.rack_id + '">' + r.rack_id + '</option>').join('');
+      }
+    }
+    function updateRackGridFromSynthetic(telemetryRows, targetHour) {
+      const rackGridEl = document.getElementById('temp-rack-grid');
+      if (!rackGridEl || !telemetryRows || !telemetryRows.length) return;
+      let latestRows = [];
+      if (typeof targetHour === 'number') {
+        const dayMax = telemetryRows.reduce((mx, r) => {
+          const d = (r.timestamp || '').slice(0, 10);
+          return d > mx ? d : mx;
+        }, '');
+        latestRows = telemetryRows.filter(r => (r.timestamp || '').slice(0, 10) === dayMax && new Date(r.timestamp).getUTCHours() === targetHour);
+      } else {
+        const latestTs = telemetryRows.reduce((mx, r) => (r.timestamp > mx ? r.timestamp : mx), telemetryRows[0].timestamp);
+        latestRows = telemetryRows.filter(r => r.timestamp === latestTs);
+      }
+      if (!latestRows.length) return;
+      const byRack = {};
+      latestRows.forEach(r => {
+        const key = r.rack_id || 'RACK';
+        if (!byRack[key]) byRack[key] = { temp: 0, pred: 0, util: 0, inlet: 0, count: 0 };
+        const hashrate = parseFloat(r.hashrate_ths || '0');
+        const temp = parseFloat(r.temp_c || '0');
+        const pred = parseFloat(r.predicted_temp_72h_c || r.temp_c || '0');
+        const inlet = parseFloat(r.inlet_temp_c || '0');
+        const util = Math.max(0, Math.min(99, Math.round((hashrate / 140) * 100)));
+        byRack[key].temp += temp;
+        byRack[key].pred += pred;
+        byRack[key].util += util;
+        byRack[key].inlet += inlet;
+        byRack[key].count += 1;
+      });
+      const racks = Object.entries(byRack)
+        .map(([rackId, v]) => ({
+          rackId,
+          temp: Math.round(v.temp / Math.max(1, v.count)),
+          pred: +(v.pred / Math.max(1, v.count)).toFixed(2),
+          util: Math.round(v.util / Math.max(1, v.count))
+        }))
+        .sort((a, b) => b.util - a.util)
+        .slice(0, 48);
+      syntheticState.rackLatestByDisplayId = {};
+      rackGridEl.innerHTML = '';
+      racks.forEach((r, idx) => {
+        const cell = document.createElement('div');
+        const cellRackLabel = 'R' + (idx + 1);
+        const airflowBoost = Math.max(0, Math.round((r.temp - 27) * 9));
+        syntheticState.rackLatestByDisplayId[idx + 1] = { ...r, airflowBoost };
+        cell.className = 'rack-cell animate pulse util-' + (r.util >= 90 ? 90 : r.util >= 70 ? 70 : 0);
+        cell.innerHTML = cellRackLabel + '<span class="rack-temp">' + r.temp + '°</span>';
+        cell.title = r.rackId + ' — ' + r.util + '%, ' + r.temp + ' C, airflow +' + airflowBoost + '%';
+        cell.dataset.rackDisplayId = String(idx + 1);
+        cell.style.cursor = 'pointer';
+        cell.addEventListener('click', function() {
+          const selected = syntheticState.rackLatestByDisplayId[parseInt(this.dataset.rackDisplayId, 10)];
+          if (!selected) return;
+          const selectedRack = document.getElementById('temp-selected-rack');
+          const selectedNow = document.getElementById('temp-selected-now');
+          const selectedMl = document.getElementById('temp-selected-ml');
+          const selectedAirflow = document.getElementById('temp-selected-airflow');
+          if (selectedRack) selectedRack.textContent = selected.rackId;
+          if (selectedNow) selectedNow.textContent = selected.temp + ' C';
+          if (selectedMl) selectedMl.textContent = selected.pred.toFixed(1) + ' C';
+          if (selectedAirflow) selectedAirflow.textContent = '+' + selected.airflowBoost + '%';
+        });
+        rackGridEl.appendChild(cell);
+      });
+      const hotRacks = racks.filter(r => r.temp >= 28).length;
+      const avgInlet = Object.values(byRack).reduce((a, v) => a + (v.inlet / Math.max(1, v.count)), 0) / Math.max(1, Object.keys(byRack).length);
+      const peakFc = Math.max(...racks.map(r => r.pred));
+      const avgBoost = racks.length ? Math.round(racks.map(r => Math.max(0, (r.temp - 27) * 9)).reduce((a, b) => a + b, 0) / racks.length) : 0;
+      const hotSub = document.getElementById('temp-hot-racks-sub');
+      const avgInletEl = document.getElementById('temp-avg-inlet');
+      const peakEl = document.getElementById('temp-peak-forecast');
+      const airflowEl = document.getElementById('temp-airflow-need');
+      const hotValueEl = document.querySelector('#page-cooling .kpi-card .value');
+      if (hotValueEl) hotValueEl.textContent = String(hotRacks);
+      if (hotSub) hotSub.textContent = '>= 28 C: ' + hotRacks;
+      if (avgInletEl) avgInletEl.textContent = avgInlet.toFixed(1) + ' C';
+      if (peakEl) peakEl.textContent = peakFc.toFixed(1) + ' C';
+      if (airflowEl) airflowEl.textContent = '+' + avgBoost + '%';
+      const first = syntheticState.rackLatestByDisplayId[1];
+      if (first) {
+        const selectedRack = document.getElementById('temp-selected-rack');
+        const selectedNow = document.getElementById('temp-selected-now');
+        const selectedMl = document.getElementById('temp-selected-ml');
+        const selectedAirflow = document.getElementById('temp-selected-airflow');
+        if (selectedRack && selectedRack.textContent === '—') selectedRack.textContent = first.rackId;
+        if (selectedNow && selectedNow.textContent === '—') selectedNow.textContent = first.temp + ' C';
+        if (selectedMl && selectedMl.textContent === '—') selectedMl.textContent = first.pred.toFixed(1) + ' C';
+        if (selectedAirflow && selectedAirflow.textContent === '—') selectedAirflow.textContent = '+' + first.airflowBoost + '%';
+      }
+    }
+    function buildDailySeries(telemetryRows, valueKey) {
+      const byDay = {};
+      telemetryRows.forEach(r => {
+        const day = (r.timestamp || '').slice(0, 10);
+        const v = parseFloat(r[valueKey] || '0');
+        if (!day || !Number.isFinite(v)) return;
+        if (!byDay[day]) byDay[day] = { sum: 0, n: 0 };
+        byDay[day].sum += v;
+        byDay[day].n += 1;
+      });
+      const labels = Object.keys(byDay).sort().slice(-7);
+      const values = labels.map(d => byDay[d].sum / Math.max(1, byDay[d].n));
+      return { labels, values };
+    }
+    function bindTemperatureScenarioSlider() {
+      const slider = document.getElementById('temp-scenario-slider');
+      const hourLabel = document.getElementById('temp-scenario-hour');
+      if (!slider) return;
+      const render = (h) => {
+        if (hourLabel) hourLabel.textContent = String(h).padStart(2, '0') + ':00';
+        updateRackGridFromSynthetic(syntheticState.telemetry, h);
+      };
+      render(parseInt(slider.value, 10) || 12);
+      if (!slider.dataset.bound) {
+        slider.dataset.bound = '1';
+        slider.addEventListener('input', function() {
+          render(parseInt(this.value, 10) || 0);
+        });
+      }
+    }
+    function setupDegradationInsights() {
+      const rows = syntheticState.telemetry;
+      if (!rows.length) return;
+      const setText = (id, value) => { const el = document.getElementById(id); if (el) el.textContent = value; };
+      function rackScenarioProfile(rackId) {
+        const n = parseInt((rackId.match(/(\d+)$/) || [0, 1])[1], 10);
+        const mod = n % 4;
+        if (mod === 0) return { type: 'thermal', thermalBoost: 1.28, loadBoost: 1.03, weeklyDropMul: 1.35, reason: 'thermal hotspots and weak airflow pockets' };
+        if (mod === 1) return { type: 'vibration', thermalBoost: 1.05, loadBoost: 1.08, weeklyDropMul: 1.22, reason: 'fan imbalance and vibration wear' };
+        if (mod === 2) return { type: 'power', thermalBoost: 1.12, loadBoost: 1.15, weeklyDropMul: 1.18, reason: 'power transients and PSU stress' };
+        return { type: 'coolant', thermalBoost: 1.09, loadBoost: 1.00, weeklyDropMul: 1.12, reason: 'coolant quality drift and flow instability' };
+      }
+      const latestTs = rows.reduce((mx, r) => (r.timestamp > mx ? r.timestamp : mx), rows[0].timestamp);
+      const latest = rows.filter(r => r.timestamp === latestTs);
+      const byRack = {};
+      latest.forEach(r => {
+        const rack = r.rack_id || 'RACK';
+        if (!byRack[rack]) byRack[rack] = { util: 0, temp: 0, rul: 0, n: 0 };
+        const util = Math.max(0, Math.min(100, (parseFloat(r.hashrate_ths || '0') / 140) * 100));
+        byRack[rack].util += util;
+        byRack[rack].temp += parseFloat(r.temp_c || '0');
+        byRack[rack].rul += parseFloat(r.rul_days || '180');
+        byRack[rack].n += 1;
+      });
+      const racks = Object.entries(byRack).map(([rackId, v]) => {
+        const profile = rackScenarioProfile(rackId);
+        const util = v.util / v.n;
+        const temp = v.temp / v.n;
+        const rul = v.rul / v.n;
+        const adjustedUtil = util * profile.loadBoost;
+        const adjustedTemp = temp * profile.thermalBoost;
+        const score = Math.max(0, Math.min(100, (100 - rul / 5) * 0.55 + adjustedUtil * 0.25 + Math.max(0, adjustedTemp - 24) * 4));
+        return { rackId, util: adjustedUtil, temp: adjustedTemp, rul, score, profile };
+      }).sort((a, b) => b.score - a.score);
+
+      const rul30 = racks.filter(r => r.rul < 30).length;
+      const rul60 = racks.filter(r => r.rul >= 30 && r.rul < 60).length;
+      const avgScore = racks.reduce((a, b) => a + b.score, 0) / Math.max(1, racks.length);
+      const health = Math.max(0, 100 - avgScore);
+      setText('deg-rul-30', String(rul30));
+      setText('deg-rul-60', String(rul60));
+      setText('deg-health-index', health.toFixed(1));
+      setText('deg-risk-drift', '+' + (avgScore * 0.09).toFixed(1) + '%');
+      const degGrid = document.getElementById('deg-rack-overview-grid');
+      if (degGrid) {
+        degGrid.innerHTML = '';
+        racks.slice(0, 48).forEach((r, idx) => {
+          const cell = document.createElement('div');
+          const classTag = r.score >= 75 ? 90 : r.score >= 55 ? 70 : 0;
+          cell.className = 'rack-cell animate pulse util-' + classTag;
+          cell.innerHTML = 'R' + (idx + 1) + '<span class="rack-temp">' + Math.round(r.score) + '</span>';
+          cell.title = r.rackId + ' | score ' + r.score.toFixed(1) + ' | RUL ' + Math.round(r.rul) + 'd';
+          cell.style.cursor = 'pointer';
+          cell.dataset.rackId = r.rackId;
+          cell.addEventListener('click', function() {
+            const select = document.getElementById('degr-rack-select');
+            if (!select) return;
+            select.value = this.dataset.rackId || '';
+            select.dispatchEvent(new Event('change'));
+          });
+          degGrid.appendChild(cell);
+        });
+      }
+
+      if (window.chartRacks) {
+        const top = racks.slice(0, 10);
+        window.chartRacks.data.labels = top.map(r => r.rackId.replace('SITE-01-', ''));
+        window.chartRacks.data.datasets[0].data = top.map(r => +r.score.toFixed(1));
+        window.chartRacks.update();
+      }
+      if (window.chartLoad) {
+        const rul0_30 = racks.filter(r => r.rul < 30).length;
+        const rul30_60 = racks.filter(r => r.rul >= 30 && r.rul < 60).length;
+        const rul60_120 = racks.filter(r => r.rul >= 60 && r.rul < 120).length;
+        const rul120p = racks.filter(r => r.rul >= 120).length;
+        window.chartLoad.data.labels = ['RUL<30d', '30-60d', '60-120d', '>120d'];
+        window.chartLoad.data.datasets[0].data = [rul0_30, rul30_60, rul60_120, rul120p];
+        window.chartLoad.update();
+        const bucketListEl = document.getElementById('deg-bucket-list');
+        const bucketHintEl = document.getElementById('deg-bucket-hint');
+        const buckets = [
+          { id: 'rul_lt_30', label: 'RUL<30d', filter: (x) => x.rul < 30 },
+          { id: 'rul_30_60', label: 'RUL 30-60d', filter: (x) => x.rul >= 30 && x.rul < 60 },
+          { id: 'rul_60_120', label: 'RUL 60-120d', filter: (x) => x.rul >= 60 && x.rul < 120 },
+          { id: 'rul_gt_120', label: 'RUL >120d', filter: (x) => x.rul >= 120 }
+        ];
+        const renderBucketList = (bucketIdx) => {
+          if (!bucketListEl) return;
+          const b = buckets[bucketIdx];
+          const items = racks.filter(b.filter);
+          if (bucketHintEl) bucketHintEl.textContent = b.label + ': ' + items.length + ' racks';
+          bucketListEl.innerHTML = items.length
+            ? items.slice(0, 20).map(x =>
+                '<li class="alert-item"><span class="alert-dot ' + (x.rul < 30 ? 'critical' : x.rul < 60 ? 'warning' : 'info') + '"></span>' +
+                '<div><strong>' + x.rackId + '</strong><div style="color:var(--text-muted);font-size:0.75rem;margin-top:4px;">Degr score ' + x.score.toFixed(1) + ', load ' + x.util.toFixed(1) + '%</div></div>' +
+                '<span class="alert-time">RUL ' + Math.round(x.rul) + 'd</span></li>'
+              ).join('')
+            : '<li class="alert-item"><span class="alert-dot info"></span><div><strong>No racks</strong><div style="color:var(--text-muted);font-size:0.75rem;margin-top:4px;">This bucket is currently empty.</div></div><span class="alert-time">—</span></li>';
+        };
+        if (!window.chartLoad._degBucketBound) {
+          window.chartLoad.options.onClick = function(evt, activeEls) {
+            if (!activeEls || !activeEls.length) return;
+            renderBucketList(activeEls[0].index);
+          };
+          window.chartLoad._degBucketBound = true;
+        }
+        renderBucketList(0);
+      }
+      const listEl = document.getElementById('degr-top-list');
+      if (listEl) {
+        listEl.innerHTML = racks.slice(0, 5).map(r => {
+          const reason = r.temp > 28 ? 'persistently high temperature' : (r.util > 85 ? 'high sustained load' : 'accumulated component wear');
+          const rec = r.rul < 30
+            ? 'Plan urgent service within 7 days and tie it to peak-load reduction.'
+            : 'Schedule maintenance window, reduce peak load, and confirm cooling policy for this rack.';
+          return '<li class="alert-item"><span class="alert-dot warning"></span><div><strong>' + r.rackId + ':</strong> ' + reason +
+            '<div style="color:var(--text-muted);font-size:0.75rem;margin-top:4px;">Recommendation: ' + rec + '</div></div>' +
+            '<span class="alert-time">RUL ' + Math.round(r.rul) + ' d</span></li>';
+        }).join('');
+      }
+      const select = document.getElementById('degr-rack-select');
+      if (select) {
+        select.innerHTML = racks.slice(0, 24).map(r => '<option value="' + r.rackId + '">' + r.rackId + '</option>').join('');
+        const renderRack = (rackId) => {
+          const selectedRackMeta = racks.find(r => r.rackId === rackId);
+          const profile = selectedRackMeta ? selectedRackMeta.profile : { type: 'thermal', weeklyDropMul: 1.1, reason: 'mixed causes' };
+          const series = rows.filter(r => r.rack_id === rackId).slice(-2400);
+          const byHour = {};
+          series.forEach(r => {
+            const hh = new Date(r.timestamp).getUTCHours();
+            const key = String(hh).padStart(2, '0') + ':00';
+            if (!byHour[key]) byHour[key] = { load: 0, deg: 0, n: 0 };
+            const load = Math.max(0, Math.min(100, (parseFloat(r.hashrate_ths || '0') / 140) * 100));
+            const rul = parseFloat(r.rul_days || '180');
+            const deg = Math.max(0, Math.min(100, 100 - rul / 5));
+            byHour[key].load += load;
+            byHour[key].deg += deg;
+            byHour[key].n += 1;
+          });
+          const labels = Array.from({length:24}, (_, i) => String(i).padStart(2, '0') + ':00');
+          const loadData = labels.map(l => byHour[l] ? byHour[l].load / byHour[l].n : 0);
+          const degData = labels.map(l => byHour[l] ? byHour[l].deg / byHour[l].n : 0);
+          const avgLoad = loadData.reduce((a, b) => a + b, 0) / 24;
+          const avgDeg = degData.reduce((a, b) => a + b, 0) / 24;
+          const currentRul = Math.max(12, Math.round(360 - avgDeg * 3.2));
+          const weeklyDrop = Math.max(3, ((avgDeg / 20) + (avgLoad / 45)) * profile.weeklyDropMul);
+          const scenarioLabels = ['Now', 'W+2', 'W+4', 'W+6', 'W+8', 'W+10', 'W+12'];
+          const rulForecast = scenarioLabels.map((_, i) => Math.max(5, currentRul - weeklyDrop * (i * 2)));
+          const watchThreshold = scenarioLabels.map(() => 60);
+          const criticalThreshold = scenarioLabels.map(() => 30);
+          if (window.chartDegrRack) {
+            window.chartDegrRack.data.labels = scenarioLabels;
+            window.chartDegrRack.data.datasets[0].data = rulForecast.map(v => +v.toFixed(1));
+            window.chartDegrRack.data.datasets[1].data = watchThreshold;
+            window.chartDegrRack.data.datasets[2].data = criticalThreshold;
+            window.chartDegrRack.update();
+          }
+          if (window.chartRulReasons) {
+            let thermal = Math.max(10, Math.min(60, Math.round(avgDeg * 0.34)));
+            let load = Math.max(10, Math.min(50, Math.round(avgLoad * 0.30)));
+            let vibration = Math.max(6, Math.min(28, Math.round((avgDeg - 30) * 0.22)));
+            let coolant = Math.max(6, 100 - thermal - load - vibration);
+            if (profile.type === 'thermal') { thermal += 10; load -= 4; coolant -= 3; }
+            if (profile.type === 'vibration') { vibration += 12; thermal -= 3; }
+            if (profile.type === 'power') { load += 9; thermal += 2; vibration -= 3; }
+            if (profile.type === 'coolant') { coolant += 10; thermal += 3; load -= 4; }
+            const total = Math.max(1, thermal + load + vibration + coolant);
+            thermal = Math.round((thermal / total) * 100);
+            load = Math.round((load / total) * 100);
+            vibration = Math.round((vibration / total) * 100);
+            coolant = Math.max(0, 100 - thermal - load - vibration);
+            window.chartRulReasons.data.datasets[0].data = [thermal, load, vibration, coolant];
+            window.chartRulReasons.update();
+            const reasonsText = document.getElementById('deg-selected-reasons-text');
+            if (reasonsText) {
+              const topReason = thermal >= load && thermal >= vibration ? 'Thermal stress'
+                : load >= vibration ? 'Sustained high load'
+                : 'Vibration/fan wear';
+              const action = currentRul < 60
+                ? 'accelerate maintenance, reduce peak-load by 10-15%, and apply an aggressive cooling profile.'
+                : 'keep preventive schedule, limit evening peaks, and check fan balancing.';
+              reasonsText.textContent = rackId + ': degradation scenario — ' + profile.reason + '. Main cause now: ' + topReason + '. Recommendation: ' + action;
+            }
+          }
+          const ex = document.getElementById('degr-rack-explain');
+          if (ex) {
+            ex.textContent = rackId + ': current RUL is ~' + currentRul + ' days. Under current load, the scenario projects RUL down to ~' +
+              Math.round(rulForecast[rulForecast.length - 1]) + ' days by W+12. Main drivers: thermal stress + sustained load. Recommendation: ' +
+              (currentRul < 60
+                ? 'create a work order within 7 days and temporarily cap peak windows.'
+                : 'plan preventive service in 2-4 weeks and reduce evening peak windows.');
+          }
+        };
+        if (!select.dataset.bound) {
+          select.dataset.bound = '1';
+          select.addEventListener('change', function() { renderRack(this.value); });
+        }
+        renderRack(select.value);
+      }
+    }
+    function buildHourlySeries(telemetryRows, actualKey, predKey) {
+      const sorted = telemetryRows.slice().sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+      const tail = sorted.slice(-24 * 120);
+      const byHour = {};
+      tail.forEach(r => {
+        const ts = new Date(r.timestamp);
+        const hh = ts.getUTCHours();
+        const k = String(hh).padStart(2, '0') + ':00';
+        if (!byHour[k]) byHour[k] = { a: 0, p: 0, n: 0 };
+        byHour[k].a += parseFloat(r[actualKey] || '0');
+        byHour[k].p += parseFloat(r[predKey] || r[actualKey] || '0');
+        byHour[k].n += 1;
+      });
+      const labels = Array.from({length:24}, (_, i) => String(i).padStart(2, '0') + ':00');
+      const actual = labels.map(l => (byHour[l] ? byHour[l].a / byHour[l].n : 0));
+      const predicted = labels.map(l => (byHour[l] ? byHour[l].p / byHour[l].n : 0));
+      return { labels, actual, predicted };
+    }
+    function buildIncidentsWeekly(incidents) {
+      const preventive = [0, 0, 0, 0];
+      const critical = [0, 0, 0, 0];
+      incidents.slice(0, 24).forEach((inc, i) => {
+        const week = i % 4;
+        preventive[week] += 1;
+        if ((inc.severity || '') === 'critical') critical[week] += 1;
+      });
+      return { preventive, critical };
+    }
+    function initTwoRackChipDemo() {
+      const grid = document.getElementById('chip-heatmap-grid');
+      const detailGrid = document.getElementById('chip-detail-heatmap-grid');
+      const slider = document.getElementById('chip-hour-slider');
+      const hourLabel = document.getElementById('chip-hour-label');
+      if (!grid || !detailGrid || !slider) return;
+
+      const chips = [];
+      const rackIds = ['R1', 'R2'];
+      rackIds.forEach((rack) => {
+        for (let c = 1; c <= 4; c++) {
+          const chipId = rack + '-CHIP-' + c;
+          const hours = [];
+          for (let h = 0; h < 24; h++) {
+            // Rich synthetic demo scenarios with distinct behavior per rack.
+            const dayPeak = (h >= 11 && h <= 16);
+            const eveningWave = (h >= 18 && h <= 21);
+            const maintenanceDip = (h >= 4 && h <= 5);
+
+            let loadWave;
+            let baseTemp;
+            let eventTempDelta = 0;
+            let eventLoadDelta = 0;
+
+            if (rack === 'R1') {
+              // R1: controlled daytime peak + planned maintenance dip + evening recovery.
+              loadWave = 64 + 14 * Math.sin((h / 24) * Math.PI * 2 - 1.3) + c * 1.4;
+              baseTemp = 62.0;
+              if (dayPeak) { eventLoadDelta += 8; eventTempDelta += 3.1; }
+              if (eveningWave) { eventLoadDelta -= 4; eventTempDelta -= 1.6; }
+              if (maintenanceDip) { eventLoadDelta -= 9; eventTempDelta -= 2.2; }
+              if (c === 3 && h >= 13 && h <= 15) eventTempDelta += 1.8;
+            } else {
+              // R2: stronger hotspot behavior and chip-local anomalies.
+              loadWave = 70 + 19 * Math.sin((h / 24) * Math.PI * 2 - 0.6) + c * 1.9;
+              baseTemp = 64.6;
+              if (dayPeak) { eventLoadDelta += 13; eventTempDelta += 7.6; }
+              if (eveningWave) { eventLoadDelta += 5; eventTempDelta += 3.2; }
+              if (maintenanceDip) { eventLoadDelta -= 5; eventTempDelta -= 1.1; }
+              if (c === 2 && h >= 19 && h <= 21) eventTempDelta += 2.7;
+              if (c === 4 && h >= 12 && h <= 14) eventTempDelta += 2.2;
+            }
+
+            const load = loadWave + eventLoadDelta;
+            const temp = baseTemp + (load - 60) * 0.25 + (c - 2) * 0.9 + eventTempDelta;
+            const mlBias = rack === 'R1' ? 0.7 : 1.2;
+            const ml = temp + mlBias + (h % 3) * 0.32 + (rack === 'R2' && dayPeak ? 0.8 : 0);
+            hours.push({ hour: h, temp: +temp.toFixed(2), ml: +ml.toFixed(2), load: +load.toFixed(1) });
+          }
+          chips.push({ rack, chip: 'CHIP-' + c, chipId, hours });
+        }
+      });
+
+      const tempColor = (t) => {
+        const x = Math.max(0, Math.min(1, (t - 58) / 20));
+        const r = Math.round(20 + (248 - 20) * x);
+        const g = Math.round(180 + (81 - 180) * x);
+        const b = Math.round(160 + (73 - 160) * x);
+        return 'rgb(' + r + ',' + g + ',' + b + ')';
+      };
+
+      function airflowByTemp(t) {
+        return Math.max(0, Math.round((t - 74) * 6));
+      }
+
+      let selectedChip = chips[0];
+      let selectedRack = 'R1';
+      let selectedHour = parseInt(slider.value, 10) || 12;
+
+      function renderRackHeatmap(hour) {
+        const h = Math.max(0, Math.min(23, hour));
+        if (hourLabel) hourLabel.textContent = String(h).padStart(2, '0') + ':00';
+        let html = '<div></div>';
+        for (let x = 0; x < 24; x++) html += '<div class="slot-label" style="text-align:center">' + x + '</div>';
+        rackIds.forEach(rack => {
+          html += '<div class="row-label">' + rack + ' avg</div>';
+          for (let hh = 0; hh < 24; hh++) {
+            const rackChips = chips.filter(c => c.rack === rack);
+            const tempAvg = rackChips.reduce((a, c) => a + c.hours[hh].temp, 0) / rackChips.length;
+            const sel = (selectedRack === rack && hh === h) ? 'outline:2px solid #fff;' : '';
+            html += '<div class="cell" data-rack="' + rack + '" data-hour="' + hh + '" style="background:' + tempColor(tempAvg) + ';' + sel +
+              '" title="' + rack + ' avg @ ' + hh + ':00 = ' + tempAvg.toFixed(1) + ' C"></div>';
+          }
+        });
+        grid.style.gridTemplateColumns = '88px repeat(24, minmax(0,1fr))';
+        grid.style.gridTemplateRows = 'auto repeat(' + rackIds.length + ', minmax(14px,1fr))';
+        grid.innerHTML = html;
+        grid.querySelectorAll('.cell').forEach(cell => {
+          cell.addEventListener('click', function() {
+            const rack = this.dataset.rack;
+            const hh = parseInt(this.dataset.hour, 10);
+            selectedRack = rack;
+            selectedHour = hh;
+            slider.value = String(hh);
+            const defaultChip = chips.find(c => c.rack === rack && c.chip === 'CHIP-1');
+            if (defaultChip) selectedChip = defaultChip;
+            updateSelection('rack');
+            renderRackHeatmap(hh);
+            renderChipDetailHeatmap(rack, hh);
+          });
+        });
+      }
+      function renderChipDetailHeatmap(rack, hour) {
+        let html = '<div></div>';
+        for (let x = 0; x < 24; x++) html += '<div class="slot-label" style="text-align:center">' + x + '</div>';
+        const rackChips = chips.filter(c => c.rack === rack);
+        rackChips.forEach(ch => {
+          html += '<div class="row-label">' + ch.chip.replace('CHIP-', 'C') + '</div>';
+          ch.hours.forEach(point => {
+            const sel = (selectedChip.chipId === ch.chipId && point.hour === hour) ? 'outline:2px solid #fff;' : '';
+            html += '<div class="cell" data-chip="' + ch.chipId + '" data-hour="' + point.hour + '" style="background:' + tempColor(point.temp) + ';' + sel +
+              '" title="' + ch.chipId + ' @ ' + point.hour + ':00 = ' + point.temp.toFixed(1) + ' C"></div>';
+          });
+        });
+        detailGrid.style.gridTemplateColumns = '88px repeat(24, minmax(0,1fr))';
+        detailGrid.style.gridTemplateRows = 'auto repeat(' + rackChips.length + ', minmax(14px,1fr))';
+        detailGrid.innerHTML = html;
+        detailGrid.querySelectorAll('.cell').forEach(cell => {
+          cell.addEventListener('click', function() {
+            const chipId = this.dataset.chip;
+            const hh = parseInt(this.dataset.hour, 10);
+            const c = chips.find(x => x.chipId === chipId);
+            if (!c) return;
+            selectedChip = c;
+            selectedRack = c.rack;
+            selectedHour = hh;
+            slider.value = String(hh);
+            updateSelection('chip');
+            renderRackHeatmap(hh);
+            renderChipDetailHeatmap(selectedRack, hh);
+          });
+        });
+      }
+
+      function updateSelection(mode) {
+        const nowEl = document.getElementById('chip-selected-now');
+        const mlEl = document.getElementById('chip-selected-ml4');
+        const idEl = document.getElementById('chip-selected-id');
+        const airEl = document.getElementById('chip-selected-air');
+        const recEl = document.getElementById('chip-demo-recommendation');
+        let seriesTemps = [];
+        let seriesPred = [];
+        let airflowSeries = [];
+        let now = 0;
+        let pred = 0;
+        let airflow = 0;
+        if (mode === 'rack') {
+          const rackChips = chips.filter(c => c.rack === selectedRack);
+          const points = Array.from({ length: 24 }, (_, hh) => {
+            const t = rackChips.reduce((a, c) => a + c.hours[hh].temp, 0) / rackChips.length;
+            const p = rackChips.reduce((a, c) => a + c.hours[hh].ml, 0) / rackChips.length;
+            return { t, p };
+          });
+          now = points[selectedHour].t;
+          pred = points[Math.min(23, selectedHour + 4)].p;
+          airflow = airflowByTemp(now);
+          seriesTemps = points.map(p => p.t);
+          seriesPred = points.map((p, idx) => idx >= selectedHour ? p.p : null);
+          airflowSeries = points.map(p => airflowByTemp(p.t));
+          if (idEl) idEl.textContent = selectedRack + ' (avg)';
+        } else {
+          const point = selectedChip.hours[selectedHour];
+          const future = selectedChip.hours[Math.min(23, selectedHour + 4)];
+          now = point.temp;
+          pred = future.ml;
+          airflow = airflowByTemp(point.temp);
+          seriesTemps = selectedChip.hours.map(p => p.temp);
+          seriesPred = selectedChip.hours.map((p, idx) => idx >= selectedHour ? p.ml : null);
+          airflowSeries = selectedChip.hours.map(p => airflowByTemp(p.temp));
+          if (idEl) idEl.textContent = selectedChip.rack + ' / ' + selectedChip.chip;
+        }
+        if (nowEl) nowEl.textContent = now.toFixed(1) + ' C';
+        if (mlEl) mlEl.textContent = pred.toFixed(1) + ' C';
+        if (airEl) airEl.textContent = '+' + airflow + '%';
+        if (recEl) {
+          const r2Boost = Math.max(2, airflow || 2);
+          const r1Cut = Math.max(1, Math.round(r2Boost * 0.6));
+          recEl.textContent = selectedRack === 'R2'
+            ? ('Balancing recommendation: increase cooling on R2 by +' + r2Boost + '%, while reducing R1 by ' + r1Cut + '% (ratio ~' + (r2Boost / r1Cut).toFixed(1) + 'x) to stabilize the loop.')
+            : ('Balancing recommendation: reduce cooling on R1 by ' + r1Cut + '% and increase R2 by +' + r2Boost + '% (ratio ~' + (r2Boost / r1Cut).toFixed(1) + 'x) to remove peak stress on the hot rack.');
+        }
+
+        if (window.chartChipTempForecast) {
+          const labels = Array.from({length:24}, (_, i) => String(i).padStart(2, '0') + ':00');
+          window.chartChipTempForecast.data.labels = labels;
+          window.chartChipTempForecast.data.datasets[0].data = seriesTemps;
+          window.chartChipTempForecast.data.datasets[1].data = seriesPred;
+          window.chartChipTempForecast.update();
+        }
+        if (window.chartChipCooling) {
+          const labels = Array.from({length:24}, (_, i) => String(i).padStart(2, '0') + ':00');
+          window.chartChipCooling.data.labels = labels;
+          window.chartChipCooling.data.datasets[0].data = airflowSeries;
+          window.chartChipCooling.update();
+        }
+      }
+
+      if (!slider.dataset.boundChip) {
+        slider.dataset.boundChip = '1';
+        slider.addEventListener('input', function() {
+          selectedHour = parseInt(this.value, 10) || 0;
+          updateSelection('rack');
+          renderRackHeatmap(selectedHour);
+          renderChipDetailHeatmap(selectedRack, selectedHour);
+        });
+      }
+      updateSelection('rack');
+      renderRackHeatmap(selectedHour);
+      renderChipDetailHeatmap(selectedRack, selectedHour);
+    }
+    function applySyntheticToCharts() {
+      if (!syntheticState.telemetry.length) return;
+      if (window.chartPower) {
+        const p = buildHourlySeries(syntheticState.telemetry, 'power_kw', 'power_kw');
+        window.chartPower.data = {
+          labels: p.labels,
+          datasets: [
+            { label: 'Actual', data: p.actual.map(v => +v.toFixed(2)), borderColor: accent, borderWidth: 2, fill: false, tension: 0.3 },
+            { label: '80% CI low', data: p.predicted.map(v => +(v - 0.25).toFixed(2)), borderColor: 'transparent', backgroundColor: mlColor + '25', fill: '+1', tension: 0.3 },
+            { label: '80% CI high', data: p.predicted.map(v => +(v + 0.25).toFixed(2)), borderColor: 'transparent', fill: false, tension: 0.3 },
+            { label: 'ML forecast', data: p.predicted.map(v => +v.toFixed(2)), borderColor: mlColor, borderWidth: 2, borderDash: [6,4], fill: false, tension: 0.3 }
+          ]
+        };
+        window.chartPower.update();
+      }
+      if (window.chartTemp) {
+        const t = buildHourlySeries(syntheticState.telemetry, 'temp_c', 'predicted_temp_72h_c');
+        window.chartTemp.data = {
+          labels: t.labels,
+          datasets: [
+            { label: 'Actual', data: t.actual.map(v => +v.toFixed(2)), borderColor: accent, borderWidth: 2, fill: false, tension: 0.3 },
+            { label: '80% CI low', data: t.predicted.map(v => +(v - 0.5).toFixed(2)), borderColor: 'transparent', backgroundColor: mlColor + '25', fill: '+1', tension: 0.3 },
+            { label: '80% CI high', data: t.predicted.map(v => +(v + 0.5).toFixed(2)), borderColor: 'transparent', fill: false, tension: 0.3 },
+            { label: 'ML forecast', data: t.predicted.map(v => +v.toFixed(2)), borderColor: mlColor, borderWidth: 2, borderDash: [6,4], fill: false, tension: 0.3 }
+          ]
+        };
+        window.chartTemp.update();
+      }
+      setupTemperatureScenario(syntheticState.telemetry);
+      bindTemperatureScenarioSlider();
+      setupDegradationInsights();
+      if (window.chartIncidents) {
+        const byWeek = buildIncidentsWeekly(syntheticState.incidents);
+        window.chartIncidents.data.datasets[0].data = byWeek.preventive;
+        window.chartIncidents.data.datasets[1].data = byWeek.critical;
+        window.chartIncidents.update();
+      }
+    }
+    function setupTemperatureScenario(telemetryRows) {
+      const slider = document.getElementById('temp-hour-slider');
+      const label = document.getElementById('temp-hour-label');
+      const explain = document.getElementById('temp-hour-explain');
+      if (!slider || !label || !window.chartThermal) return;
+
+      const sourceRows = (telemetryRows && telemetryRows.length)
+        ? telemetryRows
+        : Array.from({ length: 24 * 8 }, (_, i) => {
+            const hour = i % 24;
+            const zone = Math.floor(i / 24) + 1;
+            const actual = 22 + 3 * Math.sin(hour / 24 * Math.PI * 2) + zone * 0.45;
+            return {
+              timestamp: '2026-01-01T' + String(hour).padStart(2, '0') + ':00:00Z',
+              rack_id: 'SITE-01-RACK-' + String(zone).padStart(3, '0'),
+              temp_c: actual.toFixed(2),
+              predicted_temp_72h_c: (actual + 0.4).toFixed(2)
+            };
+          });
+
+      function rackToZone(rackId) {
+        const m = /RACK-(\d+)/.exec(rackId || '');
+        const n = m ? parseInt(m[1], 10) : 1;
+        return Math.max(1, Math.min(8, ((n - 1) % 8) + 1));
+      }
+      function hourData(hour) {
+        const dayMax = sourceRows.reduce((mx, r) => {
+          const d = (r.timestamp || '').slice(0, 10);
+          return d > mx ? d : mx;
+        }, '');
+        const rows = sourceRows.filter(r => {
+          const d = (r.timestamp || '').slice(0, 10);
+          const h = new Date(r.timestamp).getUTCHours();
+          return d === dayMax && h === hour;
+        });
+        const zoneAgg = {};
+        rows.forEach(r => {
+          const z = rackToZone(r.rack_id);
+          if (!zoneAgg[z]) zoneAgg[z] = { a: 0, p: 0, n: 0 };
+          zoneAgg[z].a += parseFloat(r.temp_c || '0');
+          zoneAgg[z].p += parseFloat(r.predicted_temp_72h_c || r.temp_c || '0');
+          zoneAgg[z].n += 1;
+        });
+        const zones = Array.from({ length: 8 }, (_, i) => i + 1);
+        const actual = zones.map(z => zoneAgg[z] ? zoneAgg[z].a / zoneAgg[z].n : 22);
+        const predicted = zones.map(z => zoneAgg[z] ? zoneAgg[z].p / zoneAgg[z].n : 22.4);
+        return { actual, predicted };
+      }
+      function renderHour(hour) {
+        const h = Math.max(0, Math.min(23, hour));
+        const data = hourData(h);
+        label.textContent = String(h).padStart(2, '0') + ':00';
+        window.chartThermal.data.datasets[0].data = data.actual.map(v => +v.toFixed(2));
+        window.chartThermal.update();
+
+        if (window.chartTemp) {
+          const p = window.chartTemp.data.datasets.find(d => d.label === 'ML forecast');
+          const a = window.chartTemp.data.datasets.find(d => d.label === 'Actual');
+          if (p && a && p.data[h] != null && a.data[h] != null && explain) {
+            const av = Number(a.data[h]);
+            const pv = Number(p.data[h]);
+            const delta = pv - av;
+            const trend = delta >= 0 ? 'higher' : 'lower';
+            explain.textContent = 'At ' + String(h).padStart(2, '0') + ':00, zone-average actual is ~' +
+              av.toFixed(2) + 'C. ML predicts ~' + pv.toFixed(2) + 'C (' + Math.abs(delta).toFixed(2) +
+              'C ' + trend + '), based on thermal inertia and load trend.';
+          }
+        }
+      }
+
+      renderHour(parseInt(slider.value, 10) || 12);
+      if (!slider.dataset.bound) {
+        slider.dataset.bound = '1';
+        slider.addEventListener('input', function() { renderHour(parseInt(this.value, 10) || 0); });
+      }
+    }
+    async function loadSyntheticScenario() {
+      try {
+        const [scenarioRes, alertsRes, incidentsRes, telemetryRes] = await Promise.all([
+          fetch('./synthetic_data_pipeline/output/demo_scenario.json', { cache: 'no-store' }),
+          fetch('./synthetic_data_pipeline/output/alerts.csv', { cache: 'no-store' }),
+          fetch('./synthetic_data_pipeline/output/incidents.json', { cache: 'no-store' }),
+          fetch('./synthetic_data_pipeline/output/telemetry.csv', { cache: 'no-store' })
+        ]);
+        if (scenarioRes.ok) {
+          const scenario = await scenarioRes.json();
+          applyDemoScenario(scenario);
+        }
+        if (!alertsRes.ok || !incidentsRes.ok || !telemetryRes.ok) return;
+        const alertsCsv = await alertsRes.text();
+        const incidents = await incidentsRes.json();
+        const telemetryCsv = await telemetryRes.text();
+        const alertRows = parseCsv(alertsCsv);
+        const telemetryRows = parseCsv(telemetryCsv);
+        syntheticState.alerts = alertRows;
+        syntheticState.incidents = incidents;
+        syntheticState.telemetry = telemetryRows;
+        updateAlertsListFromSynthetic(alertRows);
+        updateBurningListFromSynthetic(incidents);
+        updateRackGridFromSynthetic(telemetryRows);
+        applySyntheticToCharts();
+      } catch (e) {
+        console.info('Synthetic data not loaded, fallback to embedded demo scenario.', e);
+      }
+    }
+    document.querySelectorAll('.nav-item').forEach(el => {
+      el.addEventListener('click', e => {
+        e.preventDefault();
+        const page = el.dataset.page;
+        document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+        el.classList.add('active');
+        const pageEl = document.getElementById('page-' + page);
+        if (pageEl) pageEl.classList.add('active');
+        document.getElementById('page-title').textContent = titles[page] || page;
+      });
+    });
+    function tempToColor(t) {
+      const x = Math.max(0, Math.min(1, (t - 20) / 10));
+      const r = Math.round(0 + (248-0)*x);
+      const g = Math.round(212 + (81-212)*x);
+      const b = Math.round(170 + (73-170)*x);
+      return 'rgb(' + r + ',' + g + ',' + b + ')';
+    }
+    const heatmapEl = document.getElementById('heatmap-time');
+    if (heatmapEl) {
+      const zones = 8;
+      const hours = 24;
+      const labels = ['A1','A2','A3','A4','A5','A6','A7','A8'];
+      let html = '<div></div>';
+      for (let h = 0; h < hours; h++) html += '<div class="slot-label" style="text-align:center">' + h + '</div>';
+      for (let z = 0; z < zones; z++) {
+        html += '<div class="row-label">' + labels[z] + '</div>';
+        for (let h = 0; h < hours; h++) {
+          const t = 22 + 3*Math.sin(h/24*Math.PI*2) + (z*0.4) + ((z*7+h)%5)*0.3;
+          const T = Math.round(Math.max(20, Math.min(30, t))*10)/10;
+          const col = tempToColor(T);
+          html += '<div class="cell" style="background:' + col + '" title="' + labels[z] + ' ' + h + ':00 — ' + T + ' °C"></div>';
+        }
+      }
+      heatmapEl.style.gridTemplateColumns = '32px ' + 'repeat(' + hours + ', minmax(0,1fr))';
+      heatmapEl.style.gridTemplateRows = 'auto repeat(' + zones + ', minmax(14px,1fr))';
+      heatmapEl.style.maxHeight = '220px';
+      heatmapEl.innerHTML = html;
+    }
+    const RACK_SNAPSHOTS = 6;
+    const rackGrid = document.getElementById('rack-grid');
+    const rackTimeLabel = document.getElementById('rack-time-label');
+    const rackPlayBtn = document.getElementById('rack-play-pause');
+    let rackData = [];
+    let rackIndex = 0;
+    let rackInterval = null;
+    if (rackGrid) {
+      const times = ['00:00','04:00','08:00','12:00','16:00','20:00'];
+      for (let i = 1; i <= 48; i++) {
+        const snap = [];
+        for (let s = 0; s < RACK_SNAPSHOTS; s++) {
+          const util = 58 + Math.sin(s/ RACK_SNAPSHOTS * Math.PI * 2 + i*0.1) * 15 + (i % 5) * 4;
+          const temp = 22 + Math.sin(s / RACK_SNAPSHOTS * 2 + i*0.08) * 3 + (i % 3);
+          snap.push({ util: Math.min(98, Math.max(55, Math.round(util))), temp: Math.round(Math.max(20, Math.min(29, temp))) });
+        }
+        rackData.push(snap);
+      }
+      function openRackModal(rackId) {
+        const snap = rackData[rackId - 1];
+        const d = snap[rackIndex];
+        const prevIdx = (rackIndex + RACK_SNAPSHOTS - 1) % RACK_SNAPSHOTS;
+        const prev = snap[prevIdx];
+        const syntheticRack = syntheticState.rackLatestByDisplayId[rackId];
+        const rul = syntheticRack ? Math.round((360 - syntheticRack.util * 2.2 - syntheticRack.temp * 1.1) + 40) : (rackId === 3 || rackId === 15 ? 18 : 340);
+        const zone = 'A' + (Math.floor((rackId - 1) / 12) + 1);
+
+        // Demo "failure risk" model (UI-only):
+        // - uses current utilization and temperature
+        // - detects simple trend using previous snapshot
+        const utilRisk = Math.max(0, Math.min(1, (d.util - 70) / 28));
+        const tempRisk = Math.max(0, Math.min(1, (d.temp - 24) / 5));
+        const risk = Math.round((utilRisk * 0.45 + tempRisk * 0.55) * 100);
+        const riskLevel = risk >= 70 ? 'Critical' : risk >= 45 ? 'High' : 'Watch';
+
+        const tempDelta = d.temp - prev.temp;
+        const utilDelta = d.util - prev.util;
+
+        const earlySigns = [];
+        if (tempDelta >= 0.6) earlySigns.push('Temperature is trending up');
+        if (utilDelta >= 4) earlySigns.push('Utilization is increasing');
+        if (d.util >= 85) earlySigns.push('High utilization margin');
+        if (d.temp >= 27) earlySigns.push('Cooling headroom shrinking');
+        if (!earlySigns.length) earlySigns.push('Stable operating margins');
+
+        const actionText = risk >= 70
+          ? 'Run a targeted cooling check and consider temporary power capping to prevent escalation.'
+          : risk >= 45
+            ? 'Schedule a preventive inspection and keep cooling parameters within the target range.'
+            : 'Continue normal monitoring; no immediate action required.';
+
+        const riskExplainEl = document.getElementById('rack-modal-risk-explain');
+        if (riskExplainEl) {
+          riskExplainEl.innerHTML =
+            '<strong>' + riskLevel + ' risk:</strong> ' + risk + '% (next 72 h)<br/>' +
+            '<strong>Early signs:</strong> ' + earlySigns.join('; ') + '<br/>' +
+            '<strong>Recommended action:</strong> ' + actionText;
+        }
+
+        const events = [];
+        if (rackId === 3) events.push('Cooling circuit pressure rise (preventive, 2 days ago)');
+        if (risk >= 70) {
+          events.push('Predicted failure risk — verify airflow path and isolate affected devices (72 h window)');
+        } else if (risk >= 45) {
+          events.push('Preventive watch — rising risk detected; schedule inspection window');
+        } else {
+          events.push('Preventive status — risk stable; continue monitoring');
+        }
+
+        document.getElementById('rack-modal-title').textContent = 'Rack R' + rackId;
+        document.getElementById('rack-modal-util').textContent = d.util + '%';
+        document.getElementById('rack-modal-temp').textContent = d.temp + ' °C';
+        document.getElementById('rack-modal-rul').textContent = rul + ' days';
+        document.getElementById('rack-modal-zone').textContent = zone;
+        const listEl = document.getElementById('rack-modal-alerts');
+        listEl.innerHTML = events.length ? events.map(a => '<li>' + a + '</li>').join('') : '<li>No events in 30 days</li>';
+
+        document.getElementById('rack-modal').classList.add('open');
+        document.getElementById('rack-modal').setAttribute('aria-hidden', 'false');
+      }
+      function renderRacks(idx) {
+        rackGrid.innerHTML = '';
+        rackData.forEach((snap, i) => {
+          const d = snap[idx];
+          const cell = document.createElement('div');
+          cell.className = 'rack-cell animate pulse util-' + (d.util >= 90 ? 90 : d.util >= 70 ? 70 : 0);
+          cell.innerHTML = 'R' + (i+1) + '<span class="rack-temp">' + d.temp + '°</span>';
+          cell.title = 'Rack ' + (i+1) + ' — ' + d.util + '%, ' + d.temp + ' °C (click for details)';
+          cell.dataset.rackId = i + 1;
+          cell.style.cursor = 'pointer';
+          cell.addEventListener('click', function() { openRackModal(parseInt(cell.dataset.rackId, 10)); });
+          rackGrid.appendChild(cell);
+        });
+        if (rackTimeLabel) rackTimeLabel.textContent = times[idx];
+      }
+      renderRacks(0);
+      if (rackPlayBtn) {
+        rackPlayBtn.addEventListener('click', function() {
+          if (rackInterval) {
+            clearInterval(rackInterval);
+            rackInterval = null;
+            rackPlayBtn.textContent = 'Start';
+          } else {
+            rackInterval = setInterval(function() {
+              rackIndex = (rackIndex + 1) % RACK_SNAPSHOTS;
+              renderRacks(rackIndex);
+            }, 2200);
+            rackPlayBtn.textContent = 'Stop';
+          }
+        });
+      }
+    }
+    const rackModal = document.getElementById('rack-modal');
+    const rackModalClose = document.getElementById('rack-modal-close');
+    if (rackModal) {
+      function closeRackModal() { rackModal.classList.remove('open'); rackModal.setAttribute('aria-hidden', 'true'); }
+      if (rackModalClose) rackModalClose.addEventListener('click', closeRackModal);
+      rackModal.addEventListener('click', function(e) { if (e.target === rackModal) closeRackModal(); });
+    }
+    const incidentTimelineEl = document.getElementById('incident-timeline-vis');
+    if (incidentTimelineEl) {
+      const slots = [
+        { label: 'Wk1', events: [] },
+        { label: 'Wk2', events: [{ type: 'preventive', short: 'CDU' }] },
+        { label: 'Wk3', events: [] },
+        { label: 'Wk4', events: [{ type: 'preventive', short: 'B2' }] }
+      ];
+      let html = '';
+      slots.forEach(s => {
+        html += '<div class="slot"><div style="display:flex;gap:2px;align-items:flex-end;">';
+        s.events.forEach(e => {
+          html += '<div class="bubble ' + e.type + '" title="' + (e.type === 'preventive' ? 'Preventive' : e.type) + '">' + (e.short || '') + '</div>';
+        });
+        html += '</div><span class="slot-label">' + s.label + '</span></div>';
+      });
+      incidentTimelineEl.innerHTML = html;
+    }
+    // Alerts tab filtering (All / Critical / Warnings)
+    const alertTabs = document.querySelectorAll('#page-alerts .tab');
+    const alertsList = document.getElementById('alerts-list');
+    if (alertTabs && alertTabs.length && alertsList) {
+      const alertItems = alertsList.querySelectorAll('li.alert-item');
+      alertTabs.forEach(btn => {
+        btn.addEventListener('click', function() {
+          alertTabs.forEach(b => b.classList.remove('active'));
+          this.classList.add('active');
+          const tab = this.dataset.alertTab;
+          alertItems.forEach(li => {
+            const sev = (li.dataset.severity || 'info');
+            li.style.display = (tab === 'all' || sev === tab) ? 'flex' : 'none';
+          });
+        });
+      });
+    }
+
+    // Scenario slider: power capping (demo)
+    const capRange = document.getElementById('cap-range');
+    if (capRange) {
+      const capLevelEl = document.getElementById('cap-level');
+      const capSavingsEl = document.getElementById('cap-savings');
+      const capRiskEl = document.getElementById('cap-risk');
+      const capExplainEl = document.getElementById('cap-explain');
+
+      const baseRiskNow = 12; // matches the demo gauge on the Cooling page
+      const savingsPerCap = 0.8; // % energy savings per % cap (demo)
+      const riskDropPerCap = 0.4; // percentage points risk drop per % cap (demo)
+
+      function updateCap(val) {
+        const cap = parseInt(val, 10) || 0;
+        if (capLevelEl) capLevelEl.textContent = cap + '%';
+
+        const savings = cap * savingsPerCap;
+        if (capSavingsEl) capSavingsEl.textContent = savings.toFixed(1) + '%';
+
+        const riskDrop = cap * riskDropPerCap;
+        if (capRiskEl) capRiskEl.textContent = riskDrop.toFixed(1) + '%';
+
+        const predictedRisk = Math.max(0, baseRiskNow - riskDrop);
+
+        if (capExplainEl) {
+          const recommendation = cap >= 20
+            ? 'Recommended: apply during predicted peak hours and schedule a quick inspection right after the window.'
+            : cap >= 10
+              ? 'Recommended: use for short peaks; keep monitoring failure-risk trends.'
+              : 'Recommended: keep in standby; apply only if the risk accelerates.';
+
+          capExplainEl.textContent =
+            'At ' + cap + '% cap, estimated energy savings are ' + savings.toFixed(1) + '% with an expected failure-risk drop of ' +
+            riskDrop.toFixed(1) + ' percentage points (from ' + baseRiskNow + '% to ~' + predictedRisk.toFixed(1) + '%). ' + recommendation;
+        }
+      }
+
+      updateCap(capRange.value);
+      capRange.addEventListener('input', function() { updateCap(this.value); });
+    }
+    Chart.defaults.color = '#8b949e';
+    Chart.defaults.borderColor = '#30363d';
+    Chart.defaults.font.family = "'Outfit', sans-serif";
+    const accent = '#00d4aa';
+    const mlColor = '#d29922';
+    const powerFact24 = [8.2,8.0,7.9,7.8,8.1,8.5,9.2,10.1,10.8,11.2,11.5,11.8,11.9,12.0,11.8,11.5,11.2,10.8,10.2,9.8,9.5,9.2,8.8,8.4];
+    const powerMl24 = [8.2,8.0,7.9,7.8,8.1,8.5,9.2,10.1,10.8,11.2,11.5,11.8,11.9,12.0,11.9,11.6,11.3,11.0,10.4,10.0,9.6,9.3,9.0,8.6];
+    const tempFact24 = [23,23.5,24,24,24.5,25,25.5,26,26.5,27,27,26.5,26,25.5,25,24.5,24,24,23.5,23.5,23,23,23,23.5];
+    const tempMl24 = [23,23.5,24,24,24.5,25,25.5,26,26.5,27,27,26.8,26.5,26,25.5,25.2,24.8,24.5,24.2,24,23.8,23.5,23.3,23.2];
+    const delta = 0.35;
+    function getPowerData(range) {
+      if (range === '7d') {
+        const labels = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+        const f = [8.5, 9.2, 10.5, 11.2, 11.8, 11.0, 9.5];
+        const m = [8.5, 9.3, 10.6, 11.3, 11.9, 11.1, 9.4];
+        return {
+          labels,
+          datasets: [
+            { label: 'Actual', data: f, borderColor: accent, borderWidth: 2, fill: false, tension: 0.3 },
+            { label: '80% CI low', data: m.map(v => v - delta), borderColor: 'transparent', backgroundColor: mlColor + '25', fill: '+1', tension: 0.3 },
+            { label: '80% CI high', data: m.map(v => v + delta), borderColor: 'transparent', fill: false, tension: 0.3 },
+            { label: 'ML forecast', data: m, borderColor: mlColor, borderWidth: 2, borderDash: [6,4], fill: false, tension: 0.3 }
+          ]
+        };
+      }
+      return {
+        labels: Array.from({length:24}, (_,i) => i + ':00'),
+        datasets: [
+          { label: 'Actual', data: powerFact24, borderColor: accent, borderWidth: 2, fill: false, tension: 0.3 },
+          { label: '80% CI low', data: powerMl24.map(v => v - delta), borderColor: 'transparent', backgroundColor: mlColor + '25', fill: '+1', tension: 0.3 },
+          { label: '80% CI high', data: powerMl24.map(v => v + delta), borderColor: 'transparent', fill: false, tension: 0.3 },
+          { label: 'ML forecast', data: powerMl24, borderColor: mlColor, borderWidth: 2, borderDash: [6,4], fill: false, tension: 0.3 }
+        ]
+      };
+    }
+    function getTempData(range) {
+      if (range === '7d') {
+        const labels = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+        const f = [23.5, 24.5, 26, 26.5, 27, 25.5, 24];
+        const m = [23.6, 24.6, 26.1, 26.6, 27.1, 25.4, 24.1];
+        const d = 0.4;
+        return {
+          labels,
+          datasets: [
+            { label: 'Actual', data: f, borderColor: accent, borderWidth: 2, fill: false, tension: 0.3 },
+            { label: '80% CI low', data: m.map(v => v - d), borderColor: 'transparent', backgroundColor: mlColor + '25', fill: '+1', tension: 0.3 },
+            { label: '80% CI high', data: m.map(v => v + d), borderColor: 'transparent', fill: false, tension: 0.3 },
+            { label: 'ML forecast', data: m, borderColor: mlColor, borderWidth: 2, borderDash: [6,4], fill: false, tension: 0.3 }
+          ]
+        };
+      }
+      const d = 0.4;
+      return {
+        labels: Array.from({length:24}, (_,i) => i + ':00'),
+        datasets: [
+          { label: 'Actual', data: tempFact24, borderColor: accent, borderWidth: 2, fill: false, tension: 0.3 },
+          { label: '80% CI low', data: tempMl24.map(v => v - d), borderColor: 'transparent', backgroundColor: mlColor + '25', fill: '+1', tension: 0.3 },
+          { label: '80% CI high', data: tempMl24.map(v => v + d), borderColor: 'transparent', fill: false, tension: 0.3 },
+          { label: 'ML forecast', data: tempMl24, borderColor: mlColor, borderWidth: 2, borderDash: [6,4], fill: false, tension: 0.3 }
+        ]
+      };
+    }
+    let currentTimeRange = '24h';
+    const legendFilterCI = (item) => !item.text.includes('80% CI');
+    window.chartPower = new Chart(document.getElementById('chart-power'), {
+      type: 'line',
+      data: getPowerData('24h'),
+      options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: true, position: 'top', labels: { filter: legendFilterCI } } }, scales: { y: { min: 6, max: 14 } } }
+    });
+    window.chartTemp = new Chart(document.getElementById('chart-temp-fact-ml'), {
+      type: 'line',
+      data: getTempData('24h'),
+      options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: true, position: 'top', labels: { filter: legendFilterCI } } }, scales: { y: { min: 20, max: 30 } } }
+    });
+    document.querySelectorAll('#time-range-wrap button').forEach(btn => {
+      btn.addEventListener('click', function() {
+        const range = this.dataset.range;
+        if (range === currentTimeRange) return;
+        currentTimeRange = range;
+        document.querySelectorAll('#time-range-wrap button').forEach(b => b.classList.remove('active'));
+        this.classList.add('active');
+        window.chartPower.data = getPowerData(range === '7d' ? '7d' : '24h');
+        window.chartPower.update();
+        window.chartTemp.data = getTempData(range === '7d' ? '7d' : '24h');
+        window.chartTemp.update();
+        if (syntheticState.telemetry.length) applySyntheticToCharts();
+      });
+    });
+    const thermalCtx = document.getElementById('chart-thermal').getContext('2d');
+    const thermalGrad = thermalCtx.createLinearGradient(0,0,0,220);
+    thermalGrad.addColorStop(0, '#00d4aa');
+    thermalGrad.addColorStop(0.5, '#d29922');
+    thermalGrad.addColorStop(1, '#f85149');
+    window.chartThermal = new Chart(document.getElementById('chart-thermal'), {
+      type: 'bar',
+      data: {
+        labels: ['A1','A2','A3','A4','A5','A6','A7','A8'],
+        datasets: [{ label: '°C', data: [24,26,25,28,27,26,29,25], backgroundColor: thermalGrad }]
+      },
+      options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { min: 18, max: 32 } } }
+    });
+    setupTemperatureScenario([]);
+    new Chart(document.getElementById('chart-energy-forecast'), {
+      type: 'line',
+      data: {
+        labels: ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'],
+        datasets: [
+          { label: 'Actual', data: [11.8,12.0,12.2,null,null,null,null], borderColor: accent, borderWidth: 2, tension: 0.3 },
+          { label: 'ML forecast', data: [11.8,12.0,12.2,12.1,12.5,11.2,10.8], borderColor: mlColor, borderWidth: 2, borderDash: [6,4], tension: 0.3 },
+          { label: 'Limit', data: [15,15,15,15,15,15,15], borderColor: '#8b949e', borderDash: [4,4] }
+        ]
+      },
+      options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: true, position: 'top' } }, scales: { y: { min: 9 } } }
+    });
+    new Chart(document.getElementById('chart-leak-risk'), {
+      type: 'doughnut',
+      data: {
+        labels: ['Risk'],
+        datasets: [{ data: [12, 88], backgroundColor: [accent, '#21262d'], borderWidth: 0 }]
+      },
+      options: { responsive: true, maintainAspectRatio: false, cutout: '75%', plugins: { legend: { display: false } } }
+    });
+    new Chart(document.getElementById('chart-cooling-temp-ml'), {
+      type: 'line',
+      data: {
+        labels: Array.from({length:24}, (_,i) => i + ' h'),
+        datasets: [
+          { label: 'Current leak risk index', data: [8,9,9,10,10,11,12,14,16,18,21,24,26,27,25,23,20,18,16,14,13,12,11,10], borderColor: accent, borderWidth: 2, fill: false, tension: 0.3 },
+          { label: 'ML leak-risk forecast', data: [8,9,9,10,10,11,12,14,17,20,24,28,31,33,30,27,24,21,18,16,14,13,12,11], borderColor: mlColor, borderWidth: 2, borderDash: [6,4], fill: false, tension: 0.3 },
+          { label: 'Critical threshold', data: Array.from({length:24}, () => 35), borderColor: '#f85149', borderWidth: 1, borderDash: [3,3], fill: false, tension: 0 }
+        ]
+      },
+      options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: true, position: 'top' } }, scales: { y: { min: 0, max: 50 } } }
+    });
+    new Chart(document.getElementById('chart-leak-risk-time'), {
+      type: 'line',
+      data: {
+        labels: ['−72 h','−60 h','−48 h','−36 h','−24 h','−12 h','Now','+12 h','+24 h','+48 h','+72 h'],
+        datasets: [
+          { label: 'Risk index', data: [8,9,10,10,11,11,12,13,14,15,16], borderColor: accent, borderWidth: 2, backgroundColor: accent + '22', fill: true, tension: 0.3 },
+          { label: 'ML forecast', data: [8,9,10,10,11,11,12,13,14,15,17], borderColor: mlColor, borderWidth: 2, borderDash: [6,4], fill: false, tension: 0.3 },
+          { label: '40% threshold', data: [40,40,40,40,40,40,40,40,40,40,40], borderColor: '#f85149', borderWidth: 1, borderDash: [2,2], fill: false }
+        ]
+      },
+      options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: true, position: 'top' } }, scales: { y: { min: 0, max: 50 } } }
+    });
+    new Chart(document.getElementById('chart-cooling'), {
+      type: 'line',
+      data: {
+        labels: Array.from({length:12}, (_,i) => i + ' h'),
+        datasets: [
+          { label: 'Actual (pressure, bar)', data: [2.2,2.25,2.3,2.35,2.4,2.38,2.4,2.42,2.5,2.45,2.4,2.4], borderColor: accent, borderWidth: 2, yAxisID: 'y1' },
+          { label: 'ML forecast', data: [2.2,2.25,2.3,2.35,2.4,2.39,2.42,2.45,2.48,2.46,2.44,2.42], borderColor: mlColor, borderWidth: 2, borderDash: [6,4], yAxisID: 'y1' }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: { y: { display: false }, y1: { type: 'linear', position: 'left', min: 2, max: 2.8 } }
+      }
+    });
+    window.chartIncidents = new Chart(document.getElementById('chart-incidents-timeline'), {
+      type: 'line',
+      data: {
+        labels: ['Week 1','Week 2','Week 3','Week 4'],
+        datasets: [
+          { label: 'Events (preventive)', data: [0,1,0,1], borderColor: mlColor, backgroundColor: mlColor + '44', fill: true, tension: 0.3 },
+          { label: 'Critical incidents', data: [0,0,0,0], borderColor: '#f85149', backgroundColor: '#f8514922', fill: true, tension: 0.3 }
+        ]
+      },
+      options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: true, position: 'top' } }, scales: { y: { beginAtZero: true, max: 3 } } }
+    });
+    window.chartRacks = new Chart(document.getElementById('chart-racks'), {
+      type: 'bar',
+      data: {
+        labels: ['R12','R18','R5','R22','R8','R31','R3','R15','R9','R27'],
+        datasets: [{ label: 'degradation risk score', data: [88,83,79,75,73,70,67,63,58,54], backgroundColor: accent }]
+      },
+      options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { max: 100 } } }
+    });
+    window.chartLoad = new Chart(document.getElementById('chart-load'), {
+      type: 'doughnut',
+      data: {
+        labels: ['RUL<30d', '30-60d', '60-120d', '>120d'],
+        datasets: [{ data: [2, 6, 12, 28], backgroundColor: ['#f85149', '#d29922', '#3fb950', '#8b949e'] }]
+      },
+      options: { responsive: true, maintainAspectRatio: false }
+    });
+    window.chartDegrRack = new Chart(document.getElementById('chart-degr-rack'), {
+      type: 'line',
+      data: {
+        labels: ['Now', 'W+2', 'W+4', 'W+6', 'W+8', 'W+10', 'W+12'],
+        datasets: [
+          { label: 'Predicted RUL (days)', data: [220,210,195,182,170,160,150], borderColor: accent, borderWidth: 2, tension: 0.3, fill: false },
+          { label: 'Watch threshold', data: [60,60,60,60,60,60,60], borderColor: mlColor, borderWidth: 1, borderDash: [6,4], tension: 0, fill: false },
+          { label: 'Critical threshold', data: [30,30,30,30,30,30,30], borderColor: '#f85149', borderWidth: 1, borderDash: [3,3], tension: 0, fill: false }
+        ]
+      },
+      options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: true, position: 'top' } }, scales: { y: { min: 0, max: 360 } } }
+    });
+    window.chartRulReasons = new Chart(document.getElementById('chart-rul-reasons'), {
+      type: 'doughnut',
+      data: {
+        labels: ['Thermal stress', 'Sustained high load', 'Vibration/fan wear', 'Coolant quality/flow'],
+        datasets: [{ data: [38, 31, 18, 13], backgroundColor: ['#f85149', '#d29922', '#3fb950', '#8b949e'] }]
+      },
+      options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: true, position: 'right' } } }
+    });
+    window.chartChipTempForecast = new Chart(document.getElementById('chart-chip-temp-forecast'), {
+      type: 'line',
+      data: {
+        labels: Array.from({length:24}, (_, i) => String(i).padStart(2, '0') + ':00'),
+        datasets: [
+          { label: 'Actual temp', data: Array.from({length:24}, () => 0), borderColor: accent, borderWidth: 2, tension: 0.3 },
+          { label: 'ML prediction', data: Array.from({length:24}, () => null), borderColor: mlColor, borderWidth: 2, borderDash: [6,4], tension: 0.3 }
+        ]
+      },
+      options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: true, position: 'top' } }, scales: { y: { min: 55, max: 95 } } }
+    });
+    window.chartChipCooling = new Chart(document.getElementById('chart-chip-cooling'), {
+      type: 'bar',
+      data: {
+        labels: Array.from({length:24}, (_, i) => String(i).padStart(2, '0') + ':00'),
+        datasets: [{ label: 'Required airflow boost %', data: Array.from({length:24}, () => 0), backgroundColor: mlColor + 'bb' }]
+      },
+      options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: true, position: 'top' } }, scales: { y: { min: 0, max: 45 } } }
+    });
+    new Chart(document.getElementById('chart-competitors-pains'), {
+      type: 'bar',
+      data: {
+        labels: ['Nexus DC','Vertiv','Schneider','Equinix','Meukron','Octorange','Aligned'],
+        datasets: [{
+          label: 'Pains addressed (of 3)',
+          data: [3, 1, 1, 1, 1, 1, 2],
+          backgroundColor: [accent, '#8b949e','#8b949e','#8b949e','#8b949e','#8b949e','#d29922']
+        }]
+      },
+      options: {
+        indexAxis: 'y',
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: { x: { max: 3, ticks: { stepSize: 1 } } }
+      }
+    });
+    document.querySelectorAll('.report-card').forEach(el => {
+      el.addEventListener('click', () => alert('In demo mode report export is not available. In the real product this would export PDF/Excel.'));
+    });
+    initTwoRackChipDemo();
+    bindBurningTabs();
+    loadSyntheticScenario();
+  </script>
+</body>
+</html>

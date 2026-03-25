@@ -1,0 +1,74 @@
+[
+  {
+    "rack_id": "SITE-01-RACK-005",
+    "severity": "warning",
+    "alerts_count": 488,
+    "window_start": "2026-03-21T16:47:34.304806+00:00",
+    "window_end": "2026-03-23T21:27:34.304806+00:00",
+    "dominant_reason": "Hashrate dropped >25% from baseline",
+    "recommended_action": "Check network stability and miner process health."
+  },
+  {
+    "rack_id": "SITE-01-RACK-006",
+    "severity": "warning",
+    "alerts_count": 312,
+    "window_start": "2026-03-21T22:11:34.304806+00:00",
+    "window_end": "2026-03-23T08:48:34.304806+00:00",
+    "dominant_reason": "Hashrate dropped >25% from baseline",
+    "recommended_action": "Check network stability and miner process health."
+  },
+  {
+    "rack_id": "SITE-01-RACK-007",
+    "severity": "warning",
+    "alerts_count": 257,
+    "window_start": "2026-03-20T20:50:34.304806+00:00",
+    "window_end": "2026-03-24T06:06:34.304806+00:00",
+    "dominant_reason": "Hashrate dropped >25% from baseline",
+    "recommended_action": "Check network stability and miner process health."
+  },
+  {
+    "rack_id": "SITE-01-RACK-003",
+    "severity": "warning",
+    "alerts_count": 257,
+    "window_start": "2026-03-21T08:55:34.304806+00:00",
+    "window_end": "2026-03-24T07:28:34.304806+00:00",
+    "dominant_reason": "Hashrate dropped >25% from baseline",
+    "recommended_action": "Check network stability and miner process health."
+  },
+  {
+    "rack_id": "SITE-01-RACK-004",
+    "severity": "warning",
+    "alerts_count": 199,
+    "window_start": "2026-03-20T17:36:34.304806+00:00",
+    "window_end": "2026-03-24T07:53:34.304806+00:00",
+    "dominant_reason": "Hashrate dropped >25% from baseline",
+    "recommended_action": "Check network stability and miner process health."
+  },
+  {
+    "rack_id": "SITE-01-RACK-002",
+    "severity": "warning",
+    "alerts_count": 113,
+    "window_start": "2026-03-23T03:48:34.304806+00:00",
+    "window_end": "2026-03-24T07:23:34.304806+00:00",
+    "dominant_reason": "Hashrate dropped >25% from baseline",
+    "recommended_action": "Check network stability and miner process health."
+  },
+  {
+    "rack_id": "SITE-01-RACK-001",
+    "severity": "warning",
+    "alerts_count": 64,
+    "window_start": "2026-03-22T13:11:34.304806+00:00",
+    "window_end": "2026-03-22T14:15:34.304806+00:00",
+    "dominant_reason": "Hashrate dropped >25% from baseline",
+    "recommended_action": "Check network stability and miner process health."
+  },
+  {
+    "rack_id": "SITE-01-RACK-008",
+    "severity": "warning",
+    "alerts_count": 3,
+    "window_start": "2026-03-21T05:16:34.304806+00:00",
+    "window_end": "2026-03-21T05:38:34.304806+00:00",
+    "dominant_reason": "Power draw increased >25% from baseline",
+    "recommended_action": "Validate PSU behavior and review cap policy."
+  }
+]
