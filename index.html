@@ -176,6 +176,66 @@
     .tab:hover { color: var(--text); }
     .tab.active { background: var(--accent-dim); color: var(--accent); border-color: var(--accent); }
     .demo-footer { font-size: 0.75rem; color: var(--text-muted); padding: 16px 24px; border-top: 1px solid var(--border); }
+    /* Failure Mode Selector buttons */
+    .fms-btn {
+      padding: 7px 14px; border-radius: 8px; border: 1px solid var(--border);
+      background: var(--bg-elevated); color: var(--text-muted); cursor: pointer;
+      font-size: 0.82rem; font-family: 'Outfit', sans-serif; transition: all 0.18s;
+    }
+    .fms-btn:hover { color: var(--text); border-color: var(--accent); }
+    .fms-btn.active { background: var(--accent-dim); color: var(--accent); border-color: var(--accent); font-weight: 600; }
+    .fms-btn.fms-warn { border-color: rgba(210,153,34,0.4); }
+    .fms-btn.fms-warn:hover, .fms-btn.fms-warn.active { background: rgba(210,153,34,0.15); color: var(--warning); border-color: var(--warning); }
+    .fms-btn.fms-crit { border-color: rgba(248,81,73,0.4); }
+    .fms-btn.fms-crit:hover, .fms-btn.fms-crit.active { background: rgba(248,81,73,0.15); color: var(--danger); border-color: var(--danger); }
+    /* Asset Timeline */
+    .atl-table { border-collapse: separate; border-spacing: 3px; width: 100%; min-width: 600px; }
+    .atl-table td { width: 28px; height: 28px; border-radius: 4px; text-align: center; vertical-align: middle; font-size: 0.62rem; font-family: 'JetBrains Mono', monospace; cursor: default; transition: box-shadow 0.15s, border-color 0.15s; }
+    .atl-table td:hover { box-shadow: 0 0 0 2px var(--accent); position: relative; z-index: 1; }
+    .atl-table th { font-size: 0.65rem; color: var(--text-muted); padding: 0 2px 4px; text-align: center; white-space: nowrap; }
+    .atl-rack-label { font-size: 0.72rem; color: var(--text-muted); padding-right: 8px; white-space: nowrap; text-align: right; font-family: 'JetBrains Mono', monospace; }
+    /* Rack map cells redesigned */
+    .deg-rack-cell {
+      border-radius: 10px; padding: 8px 6px; cursor: pointer; transition: all 0.18s;
+      border: 1px solid transparent; display: flex; flex-direction: column;
+      align-items: center; gap: 3px; min-height: 64px; justify-content: center;
+    }
+    .deg-rack-cell:hover { transform: translateY(-2px); border-color: var(--accent); box-shadow: 0 4px 12px rgba(0,212,170,0.2); }
+    .deg-rack-cell.selected { border-color: var(--accent); background: var(--accent-dim) !important; }
+    .deg-rack-cell .drc-id { font-size: 0.68rem; font-weight: 700; font-family: 'JetBrains Mono', monospace; }
+    .deg-rack-cell .drc-rul { font-size: 0.6rem; opacity: 0.85; }
+    .deg-rack-cell .drc-score { font-size: 0.62rem; opacity: 0.7; }
+    .deg-rack-cell.glow { animation: cellGlow 2s ease-in-out infinite; }
+    @keyframes cellGlow { 0%,100%{ box-shadow:0 0 0 rgba(248,81,73,0); } 50%{ box-shadow:0 0 10px rgba(248,81,73,0.5); } }
+    .chart-wrap--rul-scenario { height: min(320px, 42vh); min-height: 260px; max-height: 380px; }
+    .fleet-rul-viz { display: flex; flex-direction: column; gap: 12px; }
+    .fr-composition { display: flex; flex-direction: column; gap: 6px; }
+    .fr-composition-label { font-size: 0.72rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.04em; }
+    .fr-stacked { display: flex; height: 16px; border-radius: 10px; overflow: hidden; border: 1px solid var(--border); background: var(--bg-elevated); }
+    .fr-stacked-seg { min-width: 3px; height: 100%; transition: flex-basis 0.35s ease; box-sizing: border-box; border-right: 1px solid rgba(13,17,23,0.65); }
+    .fr-stacked-seg:last-child { border-right: none; }
+    .fr-rows { display: flex; flex-direction: column; gap: 4px; }
+    .fr-row { display: grid; grid-template-columns: minmax(108px,1fr) minmax(0,2.2fr) auto; align-items: center; gap: 10px 12px; padding: 8px 10px; border-radius: 10px; cursor: pointer; border: 1px solid transparent; transition: background 0.15s, border-color 0.15s; }
+    .fr-row:hover { background: var(--bg-elevated); border-color: var(--border); }
+    .fr-row.active { border-color: var(--accent); background: rgba(0,212,170,0.06); }
+    .fr-row-label { font-size: 0.8rem; font-weight: 600; color: var(--text); line-height: 1.25; }
+    .fr-row-sub { font-size: 0.68rem; color: var(--text-muted); font-weight: 400; margin-top: 2px; }
+    .fr-track { height: 24px; background: #21262d; border-radius: 8px; overflow: hidden; border: 1px solid var(--border); }
+    .fr-fill { height: 100%; border-radius: 7px; min-width: 4px; transition: width 0.4s cubic-bezier(0.22,1,0.36,1); box-shadow: inset 0 0 0 1px rgba(255,255,255,0.06); }
+    .fr-stat { text-align: right; font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; color: var(--text); line-height: 1.3; }
+    .fr-stat-pct { font-size: 0.68rem; color: var(--text-muted); }
+    .fr-total { font-size: 0.75rem; color: var(--text-muted); padding: 2px 4px 0; }
+    /* Maintenance Planner Gantt */
+    .mp-legend-dot { display: inline-block; width: 10px; height: 10px; border-radius: 3px; }
+    .mp-gantt { border-collapse: separate; border-spacing: 0; width: 100%; min-width: 680px; }
+    .mp-gantt th { font-size: 0.62rem; color: var(--text-muted); padding: 0 0 6px; text-align: center; font-family: 'JetBrains Mono', monospace; position: sticky; top: 0; background: var(--bg-card); z-index: 1; }
+    .mp-gantt th.mp-th-rack { text-align: right; padding-right: 10px; width: 72px; }
+    .mp-gantt td { padding: 0; height: 28px; position: relative; border-bottom: 1px solid rgba(48,54,61,0.4); }
+    .mp-gantt td.mp-td-rack { font-size: 0.72rem; font-family: 'JetBrains Mono', monospace; color: var(--text-muted); text-align: right; padding-right: 10px; white-space: nowrap; font-weight: 600; }
+    .mp-bar { position: absolute; top: 4px; height: 20px; border-radius: 6px; cursor: pointer; transition: filter 0.15s, transform 0.12s; display: flex; align-items: center; padding: 0 6px; font-size: 0.58rem; font-family: 'JetBrains Mono', monospace; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 18px; box-shadow: 0 1px 4px rgba(0,0,0,0.35); }
+    .mp-bar:hover { filter: brightness(1.2); transform: translateY(-1px); z-index: 2; }
+    .mp-today { position: absolute; top: 0; bottom: 0; width: 2px; background: var(--accent); opacity: 0.4; z-index: 1; pointer-events: none; }
+    .mp-today::after { content: 'today'; position: absolute; top: -14px; left: -12px; font-size: 0.55rem; color: var(--accent); }
   </style>
 </head>
 <body>
@@ -496,26 +556,84 @@
         </div>
       </div>
       <div id="page-dcim" class="page">
-        <p style="color:var(--text-muted);font-size:0.9rem;margin-bottom:20px;">Degradation view: where risk rises fastest, how it correlates with load, and which racks require service first.</p>
+        <div style="background:linear-gradient(135deg,rgba(248,81,73,0.08),rgba(210,153,34,0.06));border:1px solid rgba(248,81,73,0.25);border-radius:12px;padding:14px 18px;margin-bottom:20px;">
+          <div style="font-size:0.82rem;font-weight:600;color:#ff7b72;margin-bottom:6px;">Scenario: Post-Summer Cooling Incident</div>
+          <p style="color:var(--text-muted);font-size:0.8rem;line-height:1.55;margin:0;">Row A (R1–R12) was hit by a CDU-A3 partial coolant loop failure during a July heat wave. Three racks entered critical RUL (&lt;30d), four are in the watch zone. Row B (R13–R24) shows indirect thermal bleed. Rows C–D are nominal/new hardware. Fleet health reflects the mixed state — use the tools below to triage.</p>
+        </div>
         <div class="kpi-grid">
-          <div class="kpi-card"><div class="label">Fleet health index</div><div class="value success" id="deg-health-index">—</div><div class="sub">100 = healthy fleet</div></div>
-          <div class="kpi-card"><div class="label">RUL &lt; 30d</div><div class="value" id="deg-rul-30">—</div><div class="sub">critical backlog</div></div>
-          <div class="kpi-card"><div class="label">RUL 30-60d</div><div class="value accent" id="deg-rul-60">—</div><div class="sub">planned maintenance</div></div>
-          <div class="kpi-card"><div class="label">7d risk drift</div><div class="value" id="deg-risk-drift">—</div><div class="sub">risk change</div></div>
+          <div class="kpi-card"><div class="label">Fleet health index</div><div class="value success" id="deg-health-index">—</div><div class="sub" id="deg-health-sub">100 = healthy · fleet-wide</div></div>
+          <div class="kpi-card"><div class="label">RUL &lt; 30d</div><div class="value danger" id="deg-rul-30" style="color:var(--danger)">—</div><div class="sub" id="deg-rul30-sub">racks in critical window</div></div>
+          <div class="kpi-card"><div class="label">RUL 30–60d</div><div class="value" id="deg-rul-60" style="color:var(--warning)">—</div><div class="sub" id="deg-rul60-sub">plan service soon</div></div>
+          <div class="kpi-card"><div class="label">7d risk drift</div><div class="value" id="deg-risk-drift">—</div><div class="sub" id="deg-drift-sub">vs prior week (fleet)</div></div>
         </div>
+        <p id="deg-fleet-meta" style="font-size:0.78rem;color:var(--text-muted);margin:-8px 0 16px;">Aggregates latest telemetry across all racks in the site.</p>
+
+        <!-- ── Failure Mode Selector (moved to top) ── -->
+        <div class="card" id="failure-mode-card">
+          <div class="card-title" style="flex-direction:column;align-items:flex-start;gap:4px;">
+            <span>⚡ Failure Mode Selector — "What If" RUL Simulator</span>
+            <span style="font-size:0.78rem;color:var(--text-muted);font-weight:400;">Simulate stress scenarios to see how quickly RUL collapses. Select a rack below, then pick a scenario.</span>
+          </div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;" id="fms-buttons">
+            <button class="fms-btn active" data-mode="baseline">✓ Baseline (current)</button>
+            <button class="fms-btn fms-warn" data-mode="thermal_runaway">🔥 Thermal runaway +25°C</button>
+            <button class="fms-btn fms-warn" data-mode="gpu_peak">⚡ GPU peak surge +35%</button>
+            <button class="fms-btn fms-crit" data-mode="coolant_leak">💧 Coolant leak −60%</button>
+            <button class="fms-btn fms-crit" data-mode="failure_spiral">☠ Failure spiral (all)</button>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:16px;">
+            <div class="kpi-card" style="padding:14px;"><div class="label">RUL now (baseline)</div><div class="value" id="fms-rul-now">—</div><div class="sub">days</div></div>
+            <div class="kpi-card" style="padding:14px;"><div class="label">Under scenario W+0</div><div class="value" id="fms-rul-scenario">—</div><div class="sub">immediate impact</div></div>
+            <div class="kpi-card" style="padding:14px;"><div class="label">At M+6 (horizon)</div><div class="value" id="fms-rul-w12">—</div><div class="sub">scenario vs baseline</div></div>
+            <div class="kpi-card" style="padding:14px;"><div class="label">Days lost vs baseline</div><div class="value" id="fms-rul-delta" style="color:var(--danger);">—</div><div class="sub">by M+6</div></div>
+            <div class="kpi-card" style="padding:14px;"><div class="label">Time to critical</div><div class="value" id="fms-time-critical" style="color:var(--warning);">—</div><div class="sub">est. to RUL &lt; 30d</div></div>
+          </div>
+          <div class="chart-wrap" style="height:260px;"><canvas id="chart-fms"></canvas></div>
+          <div class="ml-explanation" id="fms-explain" style="margin-top:10px;">Horizon: six months. Baseline uses current monthly wear; scenarios add stress on top.</div>
+        </div>
+        <!-- ── / Failure Mode Selector ── -->
+
+        <!-- ── Degradation map (redesigned) ── -->
         <div class="card">
-          <div class="card-title">Degradation map for all racks (click to select)</div>
-          <p style="color:var(--text-muted);font-size:0.83rem;margin-bottom:10px;">Color = degradation level (red means higher risk). Click a rack to open forecast and recommendations.</p>
-          <div class="rack-grid" id="deg-rack-overview-grid"></div>
+          <div class="card-title">
+            <span>Fleet Degradation Map — all racks</span>
+            <div style="display:flex;gap:12px;align-items:center;font-size:0.75rem;font-weight:400;color:var(--text-muted);">
+              <span style="display:flex;align-items:center;gap:4px;"><i style="display:inline-block;width:10px;height:10px;border-radius:3px;background:#3fb950;"></i>Healthy</span>
+              <span style="display:flex;align-items:center;gap:4px;"><i style="display:inline-block;width:10px;height:10px;border-radius:3px;background:#d29922;"></i>Watch</span>
+              <span style="display:flex;align-items:center;gap:4px;"><i style="display:inline-block;width:10px;height:10px;border-radius:3px;background:#f85149;"></i>Critical</span>
+            </div>
+          </div>
+          <p style="color:var(--text-muted);font-size:0.8rem;margin-bottom:14px;">Click any rack to drill down. Cell size = RUL urgency. Glow = active alert.</p>
+          <div id="deg-rack-overview-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(72px,1fr));gap:8px;"></div>
         </div>
+        <!-- ── / Degradation map ── -->
+
+        <!-- ── Asset Timeline (Maximo-style) ── -->
+        <div class="card">
+          <div class="card-title">
+            <span>Asset Health Timeline — last 12 weeks</span>
+            <span style="font-size:0.75rem;font-weight:400;color:var(--text-muted);">Each row = rack, each cell = weekly health state</span>
+          </div>
+          <div style="display:flex;gap:10px;margin-bottom:10px;font-size:0.72rem;color:var(--text-muted);flex-wrap:wrap;">
+            <span style="display:flex;align-items:center;gap:4px;"><i style="display:inline-block;width:14px;height:14px;border-radius:3px;background:#3fb950;"></i>Healthy (&gt;80)</span>
+            <span style="display:flex;align-items:center;gap:4px;"><i style="display:inline-block;width:14px;height:14px;border-radius:3px;background:#d29922;"></i>Watch (60–80)</span>
+            <span style="display:flex;align-items:center;gap:4px;"><i style="display:inline-block;width:14px;height:14px;border-radius:3px;background:#f85149;"></i>Critical (&lt;60)</span>
+            <span style="display:flex;align-items:center;gap:4px;"><i style="display:inline-block;width:14px;height:14px;border-radius:3px;background:#8b949e33;border:1px solid #30363d;"></i>Maintenance window</span>
+          </div>
+          <div id="asset-timeline" style="overflow-x:auto;"></div>
+        </div>
+        <!-- ── / Asset Timeline ── -->
+
         <div class="two-col">
           <div class="card">
-            <div class="card-title">Top degrading racks</div>
+            <div class="card-title">Top degrading racks — risk score</div>
+            <p style="font-size:0.8rem;color:var(--text-muted);margin:0 0 10px;line-height:1.45;">Horizontal bars = composite risk (0–100) from RUL, inlet thermal headroom, and load. Higher = worse — these racks should be reviewed first.</p>
             <div class="chart-wrap"><canvas id="chart-racks"></canvas></div>
           </div>
           <div class="card">
-            <div class="card-title">RUL bucket distribution</div>
-            <div class="chart-wrap"><canvas id="chart-load"></canvas></div>
+            <div class="card-title">Fleet RUL distribution</div>
+            <p style="font-size:0.8rem;color:var(--text-muted);margin:0 0 12px;line-height:1.45;">Each row = one RUL bucket. Bar length = share of fleet. <strong>Click a row</strong> to load racks into the list below.</p>
+            <div id="fleet-rul-viz" class="fleet-rul-viz" aria-label="RUL bucket distribution"></div>
           </div>
         </div>
         <div class="card">
@@ -524,23 +642,46 @@
           <ul class="alert-list" id="deg-bucket-list"></ul>
         </div>
         <div class="card">
-          <div class="card-title">Selected rack: RUL scenario (now -> forecast)</div>
-          <div style="display:flex;gap:12px;align-items:center;margin-bottom:12px;flex-wrap:wrap;">
-            <label for="degr-rack-select" style="color:var(--text-muted);font-size:0.85rem;">Rack:</label>
-            <select id="degr-rack-select" style="background:var(--bg-elevated);color:var(--text);border:1px solid var(--border);border-radius:6px;padding:6px 8px;"></select>
+          <div class="card-title">
+            <span>Selected rack: RUL scenario</span>
+            <div style="display:flex;gap:8px;align-items:center;">
+              <label for="degr-rack-select" style="color:var(--text-muted);font-size:0.85rem;">Rack:</label>
+              <select id="degr-rack-select" style="background:var(--bg-elevated);color:var(--text);border:1px solid var(--border);border-radius:6px;padding:5px 8px;font-size:0.85rem;"></select>
+            </div>
           </div>
-          <div class="chart-wrap"><canvas id="chart-degr-rack"></canvas></div>
+          <div class="chart-wrap chart-wrap--rul-scenario"><canvas id="chart-degr-rack"></canvas></div>
           <div class="ml-explanation" id="degr-rack-explain">Loading degradation data...</div>
         </div>
-        <div class="card">
-          <div class="card-title">Degradation causes (selected rack)</div>
-          <div class="chart-wrap"><canvas id="chart-rul-reasons"></canvas></div>
-          <div class="ml-explanation" id="deg-selected-reasons-text">Select a rack to view causes and recommendations.</div>
+        <div class="two-col">
+          <div class="card">
+            <div class="card-title">Degradation causes (selected rack)</div>
+            <div class="chart-wrap"><canvas id="chart-rul-reasons"></canvas></div>
+            <div class="ml-explanation" id="deg-selected-reasons-text">Select a rack to view causes and recommendations.</div>
+          </div>
+          <div class="card">
+            <div class="card-title">Priority action queue</div>
+            <ul class="alert-list" id="degr-top-list"></ul>
+          </div>
         </div>
+
+        <!-- ── Maintenance Planner (Gantt) ── -->
         <div class="card">
-          <div class="card-title">Why these racks degrade and what to do</div>
-          <ul class="alert-list" id="degr-top-list"></ul>
+          <div class="card-title">
+            <span>Maintenance Planner — next 8 weeks</span>
+            <span style="font-size:0.75rem;font-weight:400;color:var(--text-muted);">auto-scheduled from RUL + risk</span>
+          </div>
+          <p style="font-size:0.78rem;color:var(--text-muted);margin:0 0 14px;line-height:1.5;">Each bar = planned maintenance window for one rack. Length = estimated downtime. Color = urgency tier. Hover for details.</p>
+          <div style="display:flex;gap:14px;margin-bottom:12px;font-size:0.72rem;color:var(--text-muted);flex-wrap:wrap;">
+            <span style="display:flex;align-items:center;gap:4px;"><i class="mp-legend-dot" style="background:#f85149;"></i>Emergency (&lt;30d RUL)</span>
+            <span style="display:flex;align-items:center;gap:4px;"><i class="mp-legend-dot" style="background:#d29922;"></i>Urgent (30–60d)</span>
+            <span style="display:flex;align-items:center;gap:4px;"><i class="mp-legend-dot" style="background:#388bfd;"></i>Planned (60–120d)</span>
+            <span style="display:flex;align-items:center;gap:4px;"><i class="mp-legend-dot" style="background:#3fb950;"></i>Preventive (&gt;120d)</span>
+            <span style="display:flex;align-items:center;gap:4px;"><i class="mp-legend-dot" style="background:var(--accent);opacity:0.3;border:1px dashed var(--accent);"></i>Today</span>
+          </div>
+          <div id="maint-planner" style="overflow-x:auto;"></div>
         </div>
+        <!-- ── / Maintenance Planner ── -->
+
       </div>
       <div id="page-alerts" class="page">
         <div class="tabs">
@@ -791,6 +932,77 @@
       rackLatestByDisplayId: {},
       demoScenario: null
     };
+    const FLEET_RUL_COLORS = {
+      bg: ['rgba(248,81,73,0.92)', 'rgba(227,179,65,0.95)', 'rgba(88,166,255,0.92)', 'rgba(46,204,140,0.95)'],
+      border: ['#ff7b72', '#f0b429', '#79c0ff', '#56d4a3'],
+      grad: ['linear-gradient(90deg,#ff7b72,#f85149)', 'linear-gradient(90deg,#f0b429,#c9981a)', 'linear-gradient(90deg,#79c0ff,#388bfd)', 'linear-gradient(90deg,#56d4a3,#2ea043)']
+    };
+    const FLEET_RUL_BUCKET_META = [
+      { title: 'Critical (<30d)', sub: 'Immediate action — component failure imminent' },
+      { title: 'Watch (30–60d)', sub: 'Schedule service this sprint — degradation accelerating' },
+      { title: 'Stable (60–120d)', sub: 'Planned maintenance window — normal wear rate' },
+      { title: 'Healthy (>120d)', sub: 'No action needed — operating within spec' }
+    ];
+    function applyFleetRulBucketList(bucketIdx) {
+      const racks = window._degInsightRacks || [];
+      const filters = [
+        function(x) { return x.rul < 30; },
+        function(x) { return x.rul >= 30 && x.rul < 60; },
+        function(x) { return x.rul >= 60 && x.rul < 120; },
+        function(x) { return x.rul >= 120; }
+      ];
+      const labels = ['Critical (RUL < 30d)', 'Watch (RUL 30–60d)', 'Stable (RUL 60–120d)', 'Healthy (RUL > 120d)'];
+      const bucketListEl = document.getElementById('deg-bucket-list');
+      const bucketHintEl = document.getElementById('deg-bucket-hint');
+      const f = filters[bucketIdx];
+      const items = racks.filter(f);
+      if (bucketHintEl) bucketHintEl.textContent = labels[bucketIdx] + ': ' + items.length + ' racks';
+      if (bucketListEl) {
+        bucketListEl.innerHTML = items.length
+          ? items.slice(0, 20).map(function(x) {
+              return '<li class="alert-item"><span class="alert-dot ' + (x.rul < 30 ? 'critical' : x.rul < 60 ? 'warning' : 'info') + '"></span>' +
+                '<div><strong>' + x.rackId + '</strong><div style="color:var(--text-muted);font-size:0.75rem;margin-top:4px;">Degr score ' + (typeof x.score === 'number' ? x.score.toFixed(1) : '—') +
+                ', load ' + (typeof x.util === 'number' ? x.util.toFixed(1) : '—') + '%</div></div>' +
+                '<span class="alert-time">RUL ' + Math.round(x.rul) + 'd</span></li>';
+            }).join('')
+          : '<li class="alert-item"><span class="alert-dot info"></span><div><strong>No racks</strong><div style="color:var(--text-muted);font-size:0.75rem;margin-top:4px;">This bucket is empty.</div></div><span class="alert-time">—</span></li>';
+      }
+    }
+    function renderFleetRulDistributionHtml(counts) {
+      const viz = document.getElementById('fleet-rul-viz');
+      if (!viz) return;
+      const total = counts.reduce(function(a, b) { return a + b; }, 0) || 1;
+      let html = '';
+      html += '<div class="fr-composition"><div class="fr-composition-label">Fleet composition (proportional)</div><div class="fr-stacked">';
+      counts.forEach(function(c, i) {
+        html += '<div class="fr-stacked-seg" style="flex:' + Math.max(c, 0) + ' 1 0;min-width:' + (c ? '6px' : '0') + ';background:' + FLEET_RUL_COLORS.bg[i] + ';border-left:3px solid ' + FLEET_RUL_COLORS.border[i] + '" title="' + FLEET_RUL_BUCKET_META[i].title + ': ' + c + ' racks"></div>';
+      });
+      html += '</div></div><div class="fr-rows">';
+      var maxBucket = Math.max.apply(null, counts) || 1;
+      counts.forEach(function(c, i) {
+        var pct = Math.round(c / total * 1000) / 10;
+        var w = c ? Math.max(6, Math.round((c / maxBucket) * 90)) : 0;
+        html += '<div class="fr-row" data-bucket-index="' + i + '" role="button" tabindex="0">';
+        html += '<div><div class="fr-row-label">' + FLEET_RUL_BUCKET_META[i].title + '</div><div class="fr-row-sub">' + FLEET_RUL_BUCKET_META[i].sub + '</div></div>';
+        html += '<div class="fr-track"><div class="fr-fill" style="width:' + w + '%;background:' + FLEET_RUL_COLORS.grad[i] + '"></div></div>';
+        html += '<div class="fr-stat">' + c + ' <span class="fr-stat-pct">(' + pct + '%)</span></div></div>';
+      });
+      html += '</div><div class="fr-total">Racks in this fleet view: <strong>' + total + '</strong></div>';
+      viz.innerHTML = html;
+    }
+    function bindFleetRulVizOnce() {
+      const viz = document.getElementById('fleet-rul-viz');
+      if (!viz || viz.dataset.bound) return;
+      viz.dataset.bound = '1';
+      viz.addEventListener('click', function(e) {
+        const row = e.target.closest('.fr-row');
+        if (!row) return;
+        const idx = parseInt(row.dataset.bucketIndex, 10);
+        viz.querySelectorAll('.fr-row').forEach(function(r) { r.classList.remove('active'); });
+        row.classList.add('active');
+        applyFleetRulBucketList(idx);
+      });
+    }
     function applyDemoScenario(sc) {
       if (!sc || !sc.temperature || !sc.degradation) return;
       syntheticState.demoScenario = sc;
@@ -833,34 +1045,151 @@
 
       const d = sc.degradation;
       const topRacks = Array.isArray(d.top_racks) ? d.top_racks : [];
-      const rulLt30 = d.rul_lt_30 != null ? d.rul_lt_30 : topRacks.filter(x => (x.rul_days || 999) < 30).length;
-      const rul30_60 = d.rul_30_60 != null ? d.rul_30_60 : topRacks.filter(x => (x.rul_days || 999) >= 30 && (x.rul_days || 0) < 60).length;
-      const avgDegr = d.avg_degr_score != null
-        ? Number(d.avg_degr_score)
-        : (topRacks.length ? topRacks.reduce((a, b) => a + Number(b.degr_score || 0), 0) / topRacks.length : 45);
-      const healthIdx = Math.max(0, 100 - avgDegr);
+
+      // Build enriched rack list — realistic multi-incident scenario
+      // Fleet: 48 racks across 4 rows, each with its own story.
+      const ALL_RACK_COUNT = 48;
+      const allRacks = [];
+      function hashR(s) { var h = 5381; for (var j = 0; j < s.length; j++) h = ((h << 5) + h) + s.charCodeAt(j); return (h >>> 0) / 4294967295; }
+
+      // Per-rack scenario table: [rackNum] → { story, score range, rul range }
+      // Row A (1-12): CDU-A3 coolant loop partial failure — mixed severity
+      // Row B (13-24): GPU firmware bug → 3 racks overheating, others OK
+      // Row C (25-36): aging PSUs — gradual wear, 2 approaching watch
+      // Row D (37-48): brand new H100 deployment — pristine condition
+      var RACK_STORIES = {};
+      // Row A incidents
+      RACK_STORIES[1]  = { s:[88,94], r:[8,15],   tag:'coolant-critical' };
+      RACK_STORIES[2]  = { s:[82,90], r:[14,22],  tag:'coolant-critical' };
+      RACK_STORIES[3]  = { s:[75,84], r:[18,28],  tag:'coolant-critical' };
+      RACK_STORIES[4]  = { s:[58,66], r:[35,48],  tag:'coolant-watch' };
+      RACK_STORIES[5]  = { s:[52,62], r:[40,55],  tag:'coolant-watch' };
+      RACK_STORIES[6]  = { s:[48,58], r:[44,58],  tag:'coolant-watch' };
+      RACK_STORIES[7]  = { s:[44,52], r:[52,65],  tag:'coolant-watch' };
+      RACK_STORIES[8]  = { s:[40,50], r:[34,52],  tag:'coolant-watch' };
+      RACK_STORIES[9]  = { s:[38,48], r:[38,56],  tag:'coolant-watch' };
+      RACK_STORIES[10] = { s:[22,32], r:[90,115], tag:'coolant-stable' };
+      RACK_STORIES[11] = { s:[18,28], r:[100,130],tag:'coolant-stable' };
+      RACK_STORIES[12] = { s:[15,24], r:[110,140],tag:'coolant-stable' };
+      // Row B — GPU firmware bug (R15, R17, R20 overheating)
+      RACK_STORIES[13] = { s:[20,30], r:[105,135],tag:'gpu-ok' };
+      RACK_STORIES[14] = { s:[42,54], r:[36,55],  tag:'gpu-overheat' };
+      RACK_STORIES[15] = { s:[62,72], r:[32,50],  tag:'gpu-overheat' };
+      RACK_STORIES[16] = { s:[18,26], r:[115,150],tag:'gpu-ok' };
+      RACK_STORIES[17] = { s:[55,65], r:[38,55],  tag:'gpu-overheat' };
+      RACK_STORIES[18] = { s:[16,24], r:[125,160],tag:'gpu-ok' };
+      RACK_STORIES[19] = { s:[40,50], r:[33,52],  tag:'gpu-overheat' };
+      RACK_STORIES[20] = { s:[50,60], r:[42,58],  tag:'gpu-overheat' };
+      RACK_STORIES[21] = { s:[14,22], r:[135,170],tag:'gpu-ok' };
+      RACK_STORIES[22] = { s:[12,20], r:[145,180],tag:'gpu-ok' };
+      RACK_STORIES[23] = { s:[10,18], r:[155,195],tag:'gpu-ok' };
+      RACK_STORIES[24] = { s:[8,16],  r:[165,210],tag:'gpu-ok' };
+      // Row C — aging PSUs
+      for (var ci = 25; ci <= 36; ci++) {
+        var aging = (ci === 28 || ci === 33);
+        RACK_STORIES[ci] = aging
+          ? { s:[42,52], r:[48,68], tag:'psu-watch' }
+          : { s:[8 + (ci-25)*1.5, 18 + (ci-25)*1.2], r:[140 + (36-ci)*8, 180 + (36-ci)*10], tag:'psu-ok' };
+      }
+      // Row D — new H100s
+      for (var di = 37; di <= 48; di++) {
+        RACK_STORIES[di] = { s:[3 + (di-37)*0.4, 8 + (di-37)*0.6], r:[280 + (48-di)*6, 370 + (48-di)*4], tag:'new-hw' };
+      }
+
+      for (let i = 1; i <= ALL_RACK_COUNT; i++) {
+        const existing = topRacks.find(r => r.rack_id === 'SITE-01-R' + i);
+        let score, rul;
+        if (existing) {
+          score = Number(existing.degr_score || 0);
+          rul = Number(existing.rul_days || 180);
+        } else {
+          var meta = RACK_STORIES[i] || { s:[10,20], r:[150,250], tag:'default' };
+          var rng  = hashR('rack-' + i + '-v5');
+          score = meta.s[0] + rng * (meta.s[1] - meta.s[0]);
+          rul   = meta.r[0] + hashR('rack-' + i + '-rul5') * (meta.r[1] - meta.r[0]);
+        }
+        allRacks.push({
+          rackId: 'SITE-01-R' + i,
+          score: Math.min(99, Math.max(2, Math.round(score))),
+          rul: Math.max(8, Math.round(rul)),
+          tag: (RACK_STORIES[i] || {}).tag || 'default'
+        });
+      }
+      const rulLt30 = allRacks.filter(x => x.rul < 30).length;
+      const rul30_60 = allRacks.filter(x => x.rul >= 30 && x.rul < 60).length;
+      const avgDegr = allRacks.reduce((a, b) => a + b.score, 0) / Math.max(1, allRacks.length);
+      const healthIdx = Math.max(0, Math.min(100, 100 - avgDegr));
       const riskDrift = +(avgDegr * 0.09).toFixed(1);
       setText('deg-rul-30', String(rulLt30));
       setText('deg-rul-60', String(rul30_60));
       setText('deg-health-index', healthIdx.toFixed(1));
       setText('deg-risk-drift', '+' + riskDrift + '%');
+      setText('deg-fleet-meta', 'Demo fleet: ' + allRacks.length + ' racks · KPIs aggregated across the map below (telemetry will override when loaded).');
+      setText('deg-health-sub', '0–100 · mean risk ' + avgDegr.toFixed(1) + '/100');
+
+      window._fmsRacks = allRacks;
+      window._demoAllRacks = allRacks;
+      window._degInsightRacks = allRacks.map(function(r) {
+        return { rackId: r.rackId, score: r.score, rul: r.rul, util: Math.min(99, Math.max(12, r.score * 1.08)) };
+      });
+      initDegradationMap(allRacks);
+      initAssetTimeline(allRacks.slice(0, 14));
+      initMaintenancePlanner(allRacks);
 
       if (window.chartRacks && (d.top_racks || []).length) {
-        window.chartRacks.data.labels = d.top_racks.map(x => x.rack_id);
+        window.chartRacks.data.labels = d.top_racks.map(x => x.rack_id.replace('SITE-01-',''));
         window.chartRacks.data.datasets[0].data = d.top_racks.map(x => x.degr_score);
         window.chartRacks.update();
+      } else if (window.chartRacks) {
+        // fallback: top 10 from allRacks by score
+        const top10 = [...allRacks].sort((a,b) => b.score - a.score).slice(0,10);
+        window.chartRacks.data.labels = top10.map(r => r.rackId.replace('SITE-01-',''));
+        window.chartRacks.data.datasets[0].data = top10.map(r => +r.score.toFixed(1));
+        window.chartRacks.update();
+      }
+      {
+        const c = [allRacks.filter(function(r) { return r.rul < 30; }).length, allRacks.filter(function(r) { return r.rul >= 30 && r.rul < 60; }).length, allRacks.filter(function(r) { return r.rul >= 60 && r.rul < 120; }).length, allRacks.filter(function(r) { return r.rul >= 120; }).length];
+        renderFleetRulDistributionHtml(c);
+        bindFleetRulVizOnce();
+        applyFleetRulBucketList(0);
+        var viz0 = document.getElementById('fleet-rul-viz');
+        if (viz0) { var r0 = viz0.querySelector('.fr-row'); if (r0) r0.classList.add('active'); }
       }
       const topList = document.getElementById('degr-top-list');
-      if (topList && (d.top_racks || []).length) {
-        topList.innerHTML = d.top_racks.slice(0, 5).map(x =>
-          '<li class="alert-item"><span class="alert-dot warning"></span><div><strong>' + x.rack_id + ':</strong> ' + x.reason +
-          '<div style="color:var(--text-muted);font-size:0.75rem;margin-top:4px;">Recommendation: ' + x.recommendation + '</div></div>' +
-          '<span class="alert-time">RUL ' + x.rul_days + ' d</span></li>'
+      if (topList) {
+        const src = (d.top_racks || []).length ? d.top_racks.slice(0,5).map(x => ({rackId: x.rack_id, rul: x.rul_days, reason: x.reason, rec: x.recommendation, score: x.degr_score}))
+          : [...allRacks].sort((a,b)=>b.score-a.score).slice(0,5).map(r => {
+              var tagReasons = {
+                'coolant-critical': 'CDU-A3 coolant loop failure — inlet temp 38°C+',
+                'coolant-watch': 'coolant flow 22% below spec, thermal creep detected',
+                'gpu-overheat': 'GPU firmware v2.11 thermal throttle bug + fan bearing wear',
+                'psu-watch': 'PSU capacitor ESR rising — efficiency dropped to 89%',
+                'coolant-elevated': 'post-incident elevated temps, pending flush'
+              };
+              var tagRecs = {
+                'coolant-critical': '🔴 Emergency: drain loop, swap QD connectors + CDU bypass within 48h',
+                'coolant-watch': '🟡 Flush coolant circuit this sprint + recalibrate flow sensors',
+                'gpu-overheat': '🔴 Flash firmware v2.14 + replace thermal pads, apply 85% power cap now',
+                'psu-watch': '🟡 Test capacitors, replace degraded PSUs + UPS failover test',
+                'coolant-elevated': '🟢 Schedule coolant quality test + airflow rebalance in 2 weeks'
+              };
+              return {
+                rackId: r.rackId, rul: r.rul, score: r.score,
+                reason: tagReasons[r.tag] || (r.score > 70 ? 'thermal stress + sustained load' : r.score > 50 ? 'coolant degradation + vibration' : 'accumulated component wear'),
+                rec: tagRecs[r.tag] || (r.rul < 30 ? '🔴 Urgent: create work order within 48h' : r.rul < 60 ? '🟡 Plan maintenance this sprint' : '🟢 Monitor weekly')
+              };
+            });
+        topList.innerHTML = src.map(x =>
+          '<li class="alert-item"><span class="alert-dot ' + (x.rul < 30 ? 'critical' : 'warning') + '"></span>' +
+          '<div><strong>' + (x.rackId||'').replace('SITE-01-','') + ':</strong> ' + x.reason +
+          '<div style="color:var(--text-muted);font-size:0.75rem;margin-top:4px;">' + x.rec + '</div></div>' +
+          '<span class="alert-time">RUL ' + Math.round(x.rul) + 'd</span></li>'
         ).join('');
       }
       const sel = document.getElementById('degr-rack-select');
-      if (sel && (t.racks_hourly || []).length) {
-        sel.innerHTML = t.racks_hourly.map(r => '<option value="' + r.rack_id + '">' + r.rack_id + '</option>').join('');
+      if (sel) {
+        const rackIds = (t.racks_hourly||[]).length ? t.racks_hourly.map(r=>r.rack_id) : allRacks.map(r=>r.rackId);
+        sel.innerHTML = rackIds.map(id => '<option value="' + id + '">' + id.replace('SITE-01-','') + '</option>').join('');
       }
     }
     function updateRackGridFromSynthetic(telemetryRows, targetHour) {
@@ -996,101 +1325,104 @@
         if (mod === 2) return { type: 'power', thermalBoost: 1.12, loadBoost: 1.15, weeklyDropMul: 1.18, reason: 'power transients and PSU stress' };
         return { type: 'coolant', thermalBoost: 1.09, loadBoost: 1.00, weeklyDropMul: 1.12, reason: 'coolant quality drift and flow instability' };
       }
-      const latestTs = rows.reduce((mx, r) => (r.timestamp > mx ? r.timestamp : mx), rows[0].timestamp);
-      const latest = rows.filter(r => r.timestamp === latestTs);
-      const byRack = {};
-      latest.forEach(r => {
+      // Latest snapshot per rack (devices may share timestamp; chip temp is high — use inlet for fleet score)
+      const byRackRows = {};
+      rows.forEach(r => {
         const rack = r.rack_id || 'RACK';
-        if (!byRack[rack]) byRack[rack] = { util: 0, temp: 0, rul: 0, n: 0 };
-        const util = Math.max(0, Math.min(100, (parseFloat(r.hashrate_ths || '0') / 140) * 100));
-        byRack[rack].util += util;
-        byRack[rack].temp += parseFloat(r.temp_c || '0');
-        byRack[rack].rul += parseFloat(r.rul_days || '180');
-        byRack[rack].n += 1;
+        if (!byRackRows[rack]) byRackRows[rack] = [];
+        byRackRows[rack].push(r);
       });
-      const racks = Object.entries(byRack).map(([rackId, v]) => {
+      const racks = Object.entries(byRackRows).map(([rackId, arr]) => {
+        const maxTs = arr.reduce((mx, r) => ((r.timestamp || '') > mx ? r.timestamp : mx), arr[0].timestamp || '');
+        const snap = arr.filter(r => r.timestamp === maxTs);
+        const n = Math.max(1, snap.length);
+        let utilSum = 0, rulSum = 0, inletSum = 0;
+        snap.forEach(r => {
+          utilSum += Math.max(0, Math.min(100, (parseFloat(r.hashrate_ths || '0') / 140) * 100));
+          rulSum += parseFloat(r.rul_days || '180');
+          inletSum += parseFloat(r.inlet_temp_c || '24');
+        });
+        const util = utilSum / n;
+        const rul = Number.isFinite(rulSum / n) ? rulSum / n : 180;
+        const inlet = inletSum / n;
         const profile = rackScenarioProfile(rackId);
-        const util = v.util / v.n;
-        const temp = v.temp / v.n;
-        const rul = v.rul / v.n;
         const adjustedUtil = util * profile.loadBoost;
-        const adjustedTemp = temp * profile.thermalBoost;
-        const score = Math.max(0, Math.min(100, (100 - rul / 5) * 0.55 + adjustedUtil * 0.25 + Math.max(0, adjustedTemp - 24) * 4));
-        return { rackId, util: adjustedUtil, temp: adjustedTemp, rul, score, profile };
+        const inletStress = Math.max(0, Math.min(18, inlet - 20.5));
+        const rulNorm = Math.min(400, Math.max(0, rul));
+        const score = Math.max(0, Math.min(100,
+          (100 - rulNorm / 5) * 0.42 + adjustedUtil * 0.28 + inletStress * 1.85
+        ));
+        return { rackId, util: adjustedUtil, temp: inlet, inlet, rul, score, profile };
       }).sort((a, b) => b.score - a.score);
 
+      const nFleet = racks.length;
       const rul30 = racks.filter(r => r.rul < 30).length;
       const rul60 = racks.filter(r => r.rul >= 30 && r.rul < 60).length;
-      const avgScore = racks.reduce((a, b) => a + b.score, 0) / Math.max(1, racks.length);
-      const health = Math.max(0, 100 - avgScore);
+      const avgScore = racks.reduce((a, b) => a + b.score, 0) / Math.max(1, nFleet);
+      const health = Math.max(0, Math.min(100, 100 - avgScore));
+      const drift = +(avgScore * 0.09).toFixed(1);
       setText('deg-rul-30', String(rul30));
       setText('deg-rul-60', String(rul60));
       setText('deg-health-index', health.toFixed(1));
-      setText('deg-risk-drift', '+' + (avgScore * 0.09).toFixed(1) + '%');
-      const degGrid = document.getElementById('deg-rack-overview-grid');
-      if (degGrid) {
-        degGrid.innerHTML = '';
-        racks.slice(0, 48).forEach((r, idx) => {
-          const cell = document.createElement('div');
-          const classTag = r.score >= 75 ? 90 : r.score >= 55 ? 70 : 0;
-          cell.className = 'rack-cell animate pulse util-' + classTag;
-          cell.innerHTML = 'R' + (idx + 1) + '<span class="rack-temp">' + Math.round(r.score) + '</span>';
-          cell.title = r.rackId + ' | score ' + r.score.toFixed(1) + ' | RUL ' + Math.round(r.rul) + 'd';
-          cell.style.cursor = 'pointer';
-          cell.dataset.rackId = r.rackId;
-          cell.addEventListener('click', function() {
-            const select = document.getElementById('degr-rack-select');
-            if (!select) return;
-            select.value = this.dataset.rackId || '';
-            select.dispatchEvent(new Event('change'));
-          });
-          degGrid.appendChild(cell);
+      setText('deg-risk-drift', '+' + drift + '%');
+      setText('deg-fleet-meta', 'Fleet-wide snapshot: ' + nFleet + ' racks · latest row per rack · score uses inlet °C + load + RUL (not chip junction temp).');
+      setText('deg-health-sub', '0–100 · mean risk ' + avgScore.toFixed(1) + '/100');
+      setText('deg-rul30-sub', 'need immediate plan');
+      setText('deg-rul60-sub', 'schedule in 30–60d');
+      setText('deg-drift-sub', 'modelled WoW change');
+
+      // Merge telemetry racks into the demo 48-rack fleet (don't replace it)
+      var demoFleet = (window._demoAllRacks || []).slice();
+      var telemetryMap = {};
+      racks.forEach(function(r) { telemetryMap[r.rackId] = r; });
+      var mergedFleet;
+      if (demoFleet.length > racks.length) {
+        mergedFleet = demoFleet.map(function(dr) {
+          var tr = telemetryMap[dr.rackId];
+          if (tr) return { rackId: dr.rackId, score: Math.round(Math.max(dr.score, tr.score)), rul: Math.round(Math.min(dr.rul, tr.rul)), tag: dr.tag || 'default' };
+          return dr;
         });
+      } else {
+        mergedFleet = racks.map(function(r) { return { rackId: r.rackId, score: Math.round(r.score), rul: Math.round(r.rul), tag: 'default' }; });
       }
+      mergedFleet.sort(function(a, b) { return b.score - a.score; });
+
+      window._fmsRacks = mergedFleet;
+      initDegradationMap(mergedFleet);
+      initAssetTimeline(mergedFleet.slice(0, 14));
+      initMaintenancePlanner(mergedFleet);
 
       if (window.chartRacks) {
-        const top = racks.slice(0, 10);
-        window.chartRacks.data.labels = top.map(r => r.rackId.replace('SITE-01-', ''));
-        window.chartRacks.data.datasets[0].data = top.map(r => +r.score.toFixed(1));
+        var top = mergedFleet.slice(0, 10);
+        window.chartRacks.data.labels = top.map(function(r) { return r.rackId.replace('SITE-01-', ''); });
+        window.chartRacks.data.datasets[0].data = top.map(function(r) { return r.score; });
         window.chartRacks.update();
       }
-      if (window.chartLoad) {
-        const rul0_30 = racks.filter(r => r.rul < 30).length;
-        const rul30_60 = racks.filter(r => r.rul >= 30 && r.rul < 60).length;
-        const rul60_120 = racks.filter(r => r.rul >= 60 && r.rul < 120).length;
-        const rul120p = racks.filter(r => r.rul >= 120).length;
-        window.chartLoad.data.labels = ['RUL<30d', '30-60d', '60-120d', '>120d'];
-        window.chartLoad.data.datasets[0].data = [rul0_30, rul30_60, rul60_120, rul120p];
-        window.chartLoad.update();
-        const bucketListEl = document.getElementById('deg-bucket-list');
-        const bucketHintEl = document.getElementById('deg-bucket-hint');
-        const buckets = [
-          { id: 'rul_lt_30', label: 'RUL<30d', filter: (x) => x.rul < 30 },
-          { id: 'rul_30_60', label: 'RUL 30-60d', filter: (x) => x.rul >= 30 && x.rul < 60 },
-          { id: 'rul_60_120', label: 'RUL 60-120d', filter: (x) => x.rul >= 60 && x.rul < 120 },
-          { id: 'rul_gt_120', label: 'RUL >120d', filter: (x) => x.rul >= 120 }
-        ];
-        const renderBucketList = (bucketIdx) => {
-          if (!bucketListEl) return;
-          const b = buckets[bucketIdx];
-          const items = racks.filter(b.filter);
-          if (bucketHintEl) bucketHintEl.textContent = b.label + ': ' + items.length + ' racks';
-          bucketListEl.innerHTML = items.length
-            ? items.slice(0, 20).map(x =>
-                '<li class="alert-item"><span class="alert-dot ' + (x.rul < 30 ? 'critical' : x.rul < 60 ? 'warning' : 'info') + '"></span>' +
-                '<div><strong>' + x.rackId + '</strong><div style="color:var(--text-muted);font-size:0.75rem;margin-top:4px;">Degr score ' + x.score.toFixed(1) + ', load ' + x.util.toFixed(1) + '%</div></div>' +
-                '<span class="alert-time">RUL ' + Math.round(x.rul) + 'd</span></li>'
-              ).join('')
-            : '<li class="alert-item"><span class="alert-dot info"></span><div><strong>No racks</strong><div style="color:var(--text-muted);font-size:0.75rem;margin-top:4px;">This bucket is currently empty.</div></div><span class="alert-time">—</span></li>';
-        };
-        if (!window.chartLoad._degBucketBound) {
-          window.chartLoad.options.onClick = function(evt, activeEls) {
-            if (!activeEls || !activeEls.length) return;
-            renderBucketList(activeEls[0].index);
-          };
-          window.chartLoad._degBucketBound = true;
+      window._degInsightRacks = mergedFleet;
+      {
+        var rul0_30 = mergedFleet.filter(function(r) { return r.rul < 30; }).length;
+        var rul30_60 = mergedFleet.filter(function(r) { return r.rul >= 30 && r.rul < 60; }).length;
+        var rul60_120 = mergedFleet.filter(function(r) { return r.rul >= 60 && r.rul < 120; }).length;
+        var rul120p = mergedFleet.filter(function(r) { return r.rul >= 120; }).length;
+        renderFleetRulDistributionHtml([rul0_30, rul30_60, rul60_120, rul120p]);
+        bindFleetRulVizOnce();
+        applyFleetRulBucketList(0);
+        var viz = document.getElementById('fleet-rul-viz');
+        if (viz) {
+          viz.querySelectorAll('.fr-row').forEach(function(r) { r.classList.remove('active'); });
+          var first = viz.querySelector('.fr-row');
+          if (first) first.classList.add('active');
         }
-        renderBucketList(0);
+
+        // Update fleet KPIs from merged data
+        var nf = mergedFleet.length;
+        var avgS = mergedFleet.reduce(function(a, b) { return a + b.score; }, 0) / Math.max(1, nf);
+        var hlth = Math.max(0, Math.min(100, 100 - avgS));
+        var drft = +(avgS * 0.09).toFixed(1);
+        setText('deg-rul-30', String(rul0_30));
+        setText('deg-rul-60', String(rul30_60));
+        setText('deg-health-index', hlth.toFixed(1));
+        setText('deg-risk-drift', '+' + drft + '%');
       }
       const listEl = document.getElementById('degr-top-list');
       if (listEl) {
@@ -1128,10 +1460,13 @@
           const degData = labels.map(l => byHour[l] ? byHour[l].deg / byHour[l].n : 0);
           const avgLoad = loadData.reduce((a, b) => a + b, 0) / 24;
           const avgDeg = degData.reduce((a, b) => a + b, 0) / 24;
-          const currentRul = Math.max(12, Math.round(360 - avgDeg * 3.2));
+          const currentRul = selectedRackMeta
+            ? Math.round(selectedRackMeta.rul)
+            : Math.max(12, Math.round(360 - avgDeg * 3.2));
           const weeklyDrop = Math.max(3, ((avgDeg / 20) + (avgLoad / 45)) * profile.weeklyDropMul);
-          const scenarioLabels = ['Now', 'W+2', 'W+4', 'W+6', 'W+8', 'W+10', 'W+12'];
-          const rulForecast = scenarioLabels.map((_, i) => Math.max(5, currentRul - weeklyDrop * (i * 2)));
+          const monthlyDrop = weeklyDrop * 4.33 * 0.92;
+          const scenarioLabels = ['Now', '+1 mo', '+2 mo', '+3 mo', '+4 mo', '+5 mo', '+6 mo'];
+          const rulForecast = scenarioLabels.map((_, i) => Math.max(5, currentRul - monthlyDrop * i));
           const watchThreshold = scenarioLabels.map(() => 60);
           const criticalThreshold = scenarioLabels.map(() => 30);
           if (window.chartDegrRack) {
@@ -1139,7 +1474,8 @@
             window.chartDegrRack.data.datasets[0].data = rulForecast.map(v => +v.toFixed(1));
             window.chartDegrRack.data.datasets[1].data = watchThreshold;
             window.chartDegrRack.data.datasets[2].data = criticalThreshold;
-            window.chartDegrRack.update();
+            syncDegrRackYAxis();
+            window.chartDegrRack.update('none');
           }
           if (window.chartRulReasons) {
             let thermal = Math.max(10, Math.min(60, Math.round(avgDeg * 0.34)));
@@ -1170,11 +1506,21 @@
           }
           const ex = document.getElementById('degr-rack-explain');
           if (ex) {
-            ex.textContent = rackId + ': current RUL is ~' + currentRul + ' days. Under current load, the scenario projects RUL down to ~' +
-              Math.round(rulForecast[rulForecast.length - 1]) + ' days by W+12. Main drivers: thermal stress + sustained load. Recommendation: ' +
+            ex.dataset.rulNow = String(currentRul);
+            const endRul = Math.round(rulForecast[rulForecast.length - 1]);
+            const slope = Math.max(0, currentRul - endRul);
+            const tier = currentRul < 30 ? '🔴 Critical path' : currentRul < 90 ? '🟡 Elevated' : '🟢 Stable';
+            const punch = slope > 40
+              ? 'Trajectory is steep — align cooling + workload before the next quarterly window.'
+              : slope > 15
+                ? 'Gradual wear — good window for planned inspection and firmware/balancing checks.'
+                : 'Flat trajectory — keep monitoring; no urgent intervention.';
+            ex.innerHTML = '<strong>' + tier + '</strong> · <span style="color:var(--text-muted);">' + rackId + '</span><br/>' +
+              'Estimated RUL <strong>~' + currentRul + 'd</strong> now → <strong>~' + endRul + 'd</strong> at M+6 (~' + slope + 'd erosion) under today\'s operating pattern. ' +
+              'Profile: <em>' + profile.reason + '</em>. ' + punch + ' ' +
               (currentRul < 60
-                ? 'create a work order within 7 days and temporarily cap peak windows.'
-                : 'plan preventive service in 2-4 weeks and reduce evening peak windows.');
+                ? '<strong>Action:</strong> open a work order, cap peak GPU jobs 10–15%, and validate CDU/row airflow this week.'
+                : '<strong>Action:</strong> slot preventive maintenance in the next 4–8 weeks; trim evening peak windows if inlet trends up.');
           }
         };
         if (!select.dataset.bound) {
@@ -1975,31 +2321,89 @@
     window.chartRacks = new Chart(document.getElementById('chart-racks'), {
       type: 'bar',
       data: {
-        labels: ['R12','R18','R5','R22','R8','R31','R3','R15','R9','R27'],
-        datasets: [{ label: 'degradation risk score', data: [88,83,79,75,73,70,67,63,58,54], backgroundColor: accent }]
+        labels: ['R1','R2','R3','R5','R7','R14','R19','R6','R4','R10'],
+        datasets: [
+          {
+            label: 'Risk score',
+            data: [93,88,82,72,68,63,58,55,48,38],
+            backgroundColor: function(ctx) {
+              const v = ctx.raw;
+              if (v >= 80) return '#f85149cc';
+              if (v >= 60) return '#d29922cc';
+              return '#3fb950cc';
+            },
+            borderColor: function(ctx) {
+              const v = ctx.raw;
+              if (v >= 80) return '#f85149';
+              if (v >= 60) return '#d29922';
+              return '#3fb950';
+            },
+            borderWidth: 1,
+            borderRadius: 4,
+          }
+        ]
       },
-      options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { max: 100 } } }
+      options: {
+        indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: { callbacks: { label: ctx => ' Risk: ' + ctx.raw + '/100 — ' + (ctx.raw >= 80 ? '🔴 critical' : ctx.raw >= 60 ? '🟡 watch' : '🟢 ok') } }
+        },
+        scales: {
+          x: { max: 100, grid: { color: '#21262d' }, ticks: { color: '#8b949e' } },
+          y: { grid: { display: false }, ticks: { color: '#c9d1d9', font: { family: "'JetBrains Mono', monospace", size: 11 } } }
+        }
+      }
     });
-    window.chartLoad = new Chart(document.getElementById('chart-load'), {
-      type: 'doughnut',
-      data: {
-        labels: ['RUL<30d', '30-60d', '60-120d', '>120d'],
-        datasets: [{ data: [2, 6, 12, 28], backgroundColor: ['#f85149', '#d29922', '#3fb950', '#8b949e'] }]
-      },
-      options: { responsive: true, maintainAspectRatio: false }
-    });
+    function syncDegrRackYAxis() {
+      const ch = window.chartDegrRack;
+      if (!ch || !ch.data || !ch.data.datasets) return;
+      const nums = [];
+      ch.data.datasets.forEach(function(ds) {
+        (ds.data || []).forEach(function(v) { if (typeof v === 'number' && !isNaN(v)) nums.push(v); });
+      });
+      if (!nums.length) return;
+      const peak = Math.max.apply(null, nums);
+      const yMax = Math.min(520, Math.max(110, Math.ceil(peak / 20) * 20 + 20));
+      ch.options.scales.y.max = yMax;
+      ch.options.scales.y.min = 0;
+    }
     window.chartDegrRack = new Chart(document.getElementById('chart-degr-rack'), {
       type: 'line',
       data: {
-        labels: ['Now', 'W+2', 'W+4', 'W+6', 'W+8', 'W+10', 'W+12'],
+        labels: ['Now', '+1 mo', '+2 mo', '+3 mo', '+4 mo', '+5 mo', '+6 mo'],
         datasets: [
-          { label: 'Predicted RUL (days)', data: [220,210,195,182,170,160,150], borderColor: accent, borderWidth: 2, tension: 0.3, fill: false },
-          { label: 'Watch threshold', data: [60,60,60,60,60,60,60], borderColor: mlColor, borderWidth: 1, borderDash: [6,4], tension: 0, fill: false },
-          { label: 'Critical threshold', data: [30,30,30,30,30,30,30], borderColor: '#f85149', borderWidth: 1, borderDash: [3,3], tension: 0, fill: false }
+          { label: 'Predicted RUL (days)', data: [220,205,192,180,168,158,148], borderColor: accent, borderWidth: 2.5, tension: 0.35, fill: false, pointRadius: 4, pointHoverRadius: 6 },
+          { label: 'Watch (60d)', data: [60,60,60,60,60,60,60], borderColor: mlColor, borderWidth: 1.5, borderDash: [6,4], tension: 0, fill: false, pointRadius: 0 },
+          { label: 'Critical (30d)', data: [30,30,30,30,30,30,30], borderColor: '#f85149', borderWidth: 1.5, borderDash: [3,3], tension: 0, fill: false, pointRadius: 0 }
         ]
       },
-      options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: true, position: 'top' } }, scales: { y: { min: 0, max: 360 } } }
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        interaction: { mode: 'index', intersect: false },
+        layout: { padding: { top: 12, right: 10, bottom: 4, left: 4 } },
+        plugins: {
+          legend: { display: true, position: 'top', labels: { boxWidth: 12, color: '#8b949e', font: { size: 11 } } }
+        },
+        scales: {
+          x: {
+            ticks: { color: '#8b949e', font: { size: 11 }, maxRotation: 0 },
+            grid: { color: 'rgba(139,148,158,0.12)' }
+          },
+          y: {
+            min: 0,
+            suggestedMax: 400,
+            grace: '8%',
+            ticks: { color: '#8b949e', padding: 6, callback: function(v) { return v + 'd'; } },
+            grid: { color: 'rgba(139,148,158,0.15)' },
+            title: { display: true, text: 'Days remaining', color: '#6e7681', font: { size: 11 } }
+          }
+        }
+      }
     });
+    syncDegrRackYAxis();
+    window.chartDegrRack.update();
     window.chartRulReasons = new Chart(document.getElementById('chart-rul-reasons'), {
       type: 'doughnut',
       data: {
@@ -2049,8 +2453,318 @@
       el.addEventListener('click', () => alert('In demo mode report export is not available. In the real product this would export PDF/Excel.'));
     });
     initTwoRackChipDemo();
+    initFailureModeSelector();
     bindBurningTabs();
+    renderFleetRulDistributionHtml([5, 8, 12, 23]);
+    bindFleetRulVizOnce();
     loadSyntheticScenario();
+
+    // ── Degradation Map (redesigned) ──────────────────────────────────────
+    function initDegradationMap(racks) {
+      const grid = document.getElementById('deg-rack-overview-grid');
+      if (!grid || !racks || !racks.length) return;
+      grid.innerHTML = '';
+      racks.forEach(r => {
+        const cell = document.createElement('div');
+        cell.className = 'deg-rack-cell' + (r.rul < 30 ? ' glow' : '');
+        const score = r.score || 0;
+        const bg = score > 70 ? 'rgba(248,81,73,0.2)' : score > 45 ? 'rgba(210,153,34,0.18)' : 'rgba(63,185,80,0.12)';
+        const border = score > 70 ? 'rgba(248,81,73,0.5)' : score > 45 ? 'rgba(210,153,34,0.4)' : 'rgba(63,185,80,0.3)';
+        const textColor = score > 70 ? '#f85149' : score > 45 ? '#d29922' : '#3fb950';
+        cell.style.background = bg;
+        cell.style.borderColor = border;
+        cell.innerHTML =
+          '<div class="drc-id" style="color:' + textColor + '">' + r.rackId.replace('SITE-01-','') + '</div>' +
+          '<div class="drc-rul" style="color:' + textColor + '">RUL ' + Math.round(r.rul) + 'd</div>' +
+          '<div class="drc-score" style="color:var(--text-muted);">risk ' + score.toFixed(0) + '</div>';
+        cell.title = r.rackId + ' — RUL ' + Math.round(r.rul) + 'd, risk score ' + score.toFixed(1);
+        cell.dataset.rackId = r.rackId;
+        cell.addEventListener('click', function() {
+          document.querySelectorAll('.deg-rack-cell').forEach(c => c.classList.remove('selected'));
+          cell.classList.add('selected');
+          const select = document.getElementById('degr-rack-select');
+          if (select) { select.value = r.rackId; select.dispatchEvent(new Event('change')); }
+        });
+        grid.appendChild(cell);
+      });
+    }
+
+    // ── Asset Timeline (Maximo-style) — static grid; pseudo-random health per cell (seeded) ──
+    function initAssetTimeline(racks) {
+      const container = document.getElementById('asset-timeline');
+      if (!container) return;
+      const weeks = ['W−11','W−10','W−9','W−8','W−7','W−6','W−5','W−4','W−3','W−2','W−1','Now'];
+      const topRacks = (racks || []).slice(0, 14);
+      if (!topRacks.length) {
+        for (let i = 1; i <= 14; i++) topRacks.push({ rackId: 'SITE-01-R' + i, rul: 120, score: 35 });
+      }
+      function hashSeed(str) {
+        let h = 2166136261;
+        for (let i = 0; i < str.length; i++) { h ^= str.charCodeAt(i); h = Math.imul(h, 16777619); }
+        return h >>> 0;
+      }
+      function rnd01(seed) {
+        const x = Math.sin(seed) * 10000;
+        return x - Math.floor(x);
+      }
+      function cellState(rack, wi) {
+        const s = hashSeed(rack.rackId + '|' + wi);
+        const bias = Math.max(0, 55 - rack.score * 0.35);
+        const h = Math.max(8, Math.min(99, bias + rnd01(s) * 42 + rnd01(s + 17) * 18 - (wi * 0.35)));
+        const maint = rnd01(s + 99) < 0.06;
+        return { h, maint };
+      }
+      function healthColor(h) {
+        if (h < 60) return '#f8514955';
+        if (h < 80) return '#d2992255';
+        return '#3fb95055';
+      }
+      function healthBorder(h) {
+        if (h < 60) return '#f8514988';
+        if (h < 80) return '#d2992288';
+        return '#3fb95088';
+      }
+
+      let html = '<table class="atl-table"><thead><tr><th style="text-align:right;padding-right:6px;">Rack</th>';
+      weeks.forEach(w => { html += '<th>' + w + '</th>'; });
+      html += '</tr></thead><tbody>';
+      topRacks.forEach(rack => {
+        html += '<tr><td class="atl-rack-label">' + rack.rackId.replace('SITE-01-','') + '</td>';
+        for (let wi = 0; wi < weeks.length; wi++) {
+          const { h, maint } = cellState(rack, wi);
+          const bg = maint ? '#8b949e18' : healthColor(h);
+          const border = maint ? '#30363d' : healthBorder(h);
+          const tier = h < 60 ? 'Critical' : (h < 80 ? 'Watch' : 'Healthy');
+          const title = rack.rackId + ' ' + weeks[wi] + ': ' + tier + ' · health ' + h.toFixed(0) + (maint ? ' · maint window' : '');
+          const label = maint ? '🔧' : h.toFixed(0);
+          html += '<td style="background:' + bg + ';border:1px solid ' + border + ';" title="' + title + '">' + label + '</td>';
+        }
+        html += '</tr>';
+      });
+      html += '</tbody></table>';
+      container.innerHTML = html;
+    }
+
+    // ── Failure Mode Selector — monthly horizon (6 mo) ────────────────────
+    function initFailureModeSelector() {
+      const SCENARIOS = {
+        baseline:       { label: 'Baseline (current)',        stressMul: 1.0,   coolingMul: 1.0,  tempDelta: 0,  note: 'Baseline: current monthly wear only — no extra stressor.' },
+        thermal_runaway:{ label: 'Thermal runaway +25°C inlet', stressMul: 2.0,   coolingMul: 0.82, tempDelta: 25, note: 'Sustained inlet drift +25°C vs design — wear accelerates; still shown on a 6‑month horizon.' },
+        gpu_peak:       { label: 'GPU peak surge +35%',       stressMul: 1.55,  coolingMul: 0.96, tempDelta: 8,  note: 'Sustained +35% load — VRM and fan duty cycle rise; curve stays readable over months.' },
+        coolant_leak:   { label: 'Coolant leak −60%',         stressMul: 2.75,  coolingMul: 0.52, tempDelta: 18, note: 'Severe cooling loss — hotspots and pump stress; intervention timeline is visible in months.' },
+        failure_spiral: { label: 'Failure spiral (combined)',  stressMul: 3.4,   coolingMul: 0.45, tempDelta: 28, note: 'Combined thermal + load + cooling stress — worst case; compare to baseline to size backlog.' },
+      };
+      const scenarioLabels = ['Now', '+1 mo', '+2 mo', '+3 mo', '+4 mo', '+5 mo', '+6 mo'];
+
+      const fmsCanvas = document.getElementById('chart-fms');
+      if (!fmsCanvas) return;
+      const accent  = '#00d4aa';
+      const warning = '#d29922';
+      const danger  = '#f85149';
+
+      window.chartFms = new Chart(fmsCanvas, {
+        type: 'line',
+        data: {
+          labels: scenarioLabels,
+          datasets: [
+            { label: 'Baseline RUL', data: Array(7).fill(null), borderColor: accent, backgroundColor: accent + '18', borderWidth: 2.5, tension: 0.35, fill: true, pointRadius: 4 },
+            { label: 'Scenario RUL', data: Array(7).fill(null), borderColor: danger, backgroundColor: danger + '18', borderWidth: 3, borderDash: [6,3], tension: 0.35, fill: true, pointRadius: 4 },
+            { label: 'Watch (60d)',   data: Array(7).fill(60),   borderColor: warning, borderWidth: 1.5, borderDash: [4,4], pointRadius: 0, fill: false },
+            { label: 'Critical (30d)',data: Array(7).fill(30),   borderColor: danger,  borderWidth: 1.5, borderDash: [2,4], pointRadius: 0, fill: false },
+          ]
+        },
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          plugins: {
+            legend: { display: true, position: 'top', labels: { color: '#8b949e', font: { size: 11 } } },
+            tooltip: { mode: 'index', intersect: false }
+          },
+          scales: {
+            x: { ticks: { color: '#8b949e', maxRotation: 45, minRotation: 0 }, grid: { color: '#21262d' } },
+            y: { min: 0, max: 400, title: { display: true, text: 'RUL (days)', color: '#8b949e', font: { size: 12 } }, ticks: { color: '#8b949e' }, grid: { color: '#21262d' } }
+          }
+        }
+      });
+
+      let currentMode = 'baseline';
+
+      function getRulFromExplain() {
+        const el = document.getElementById('degr-rack-explain');
+        if (el && el.dataset.rulNow) return parseInt(el.dataset.rulNow, 10);
+        if (el) { const m = el.textContent.match(/~\s*(\d+)\s*d/); if (m) return parseInt(m[1], 10); }
+        return 200;
+      }
+
+      function computeForecast(baseRul, monthlyDropBase, sc) {
+        const drop = monthlyDropBase * sc.stressMul / sc.coolingMul;
+        return [0, 1, 2, 3, 4, 5, 6].map(m => Math.max(3, baseRul - drop * m));
+      }
+
+      function renderFms() {
+        const baseRul = getRulFromExplain();
+        const weeklyDrop = Math.max(3, baseRul * 0.028);
+        const monthlyDropBase = weeklyDrop * 4.33 * 0.9;
+        const scBaseline = SCENARIOS.baseline;
+        const sc = SCENARIOS[currentMode];
+        const baseForecast = computeForecast(baseRul, monthlyDropBase, scBaseline);
+        const scenForecast = computeForecast(baseRul, monthlyDropBase, sc);
+
+        const bM6 = Math.round(baseForecast[6]);
+        const sM6 = Math.round(scenForecast[6]);
+        const sW0 = Math.round(Math.max(3, baseRul * (1 - (sc.tempDelta / 320) - (1 - sc.coolingMul) * 0.42)));
+        const lost = bM6 - sM6;
+        const monthToCrit = scenForecast.findIndex(function(v) { return v < 30; });
+
+        const set = function(id, val, color) { const el = document.getElementById(id); if (el) { el.textContent = val; if (color) el.style.color = color; } };
+        set('fms-rul-now', baseRul + 'd');
+        set('fms-rul-scenario', sW0 + 'd', sW0 < 60 ? danger : sW0 < 120 ? warning : accent);
+        set('fms-rul-w12', sM6 + 'd', sM6 < 30 ? danger : sM6 < 60 ? warning : 'var(--text)');
+        set('fms-rul-delta', (lost > 0 ? '−' : '+') + Math.abs(lost) + 'd', lost > 50 ? danger : lost > 15 ? warning : '#3fb950');
+        set('fms-time-critical', monthToCrit >= 0 ? '~' + monthToCrit + ' mo' : '>6 mo', monthToCrit >= 0 && monthToCrit <= 2 ? danger : warning);
+
+        if (window.chartFms) {
+          window.chartFms.data.labels = scenarioLabels;
+          window.chartFms.data.datasets[0].data = baseForecast.map(function(v) { return +v.toFixed(1); });
+          window.chartFms.data.datasets[1].data = scenForecast.map(function(v) { return +v.toFixed(1); });
+          window.chartFms.data.datasets[1].label = sc.label;
+          window.chartFms.data.datasets[1].borderColor = currentMode === 'baseline' ? accent : (sc.stressMul > 2.8 ? danger : warning);
+          window.chartFms.data.datasets[1].backgroundColor = (currentMode === 'baseline' ? accent : (sc.stressMul > 2.8 ? danger : warning)) + '18';
+          window.chartFms.data.datasets[2].data = Array(7).fill(60);
+          window.chartFms.data.datasets[3].data = Array(7).fill(30);
+          window.chartFms.options.scales.y.max = Math.ceil(Math.max.apply(null, baseForecast.concat(scenForecast)) / 50) * 50 + 50;
+          window.chartFms.update();
+        }
+
+        const explEl = document.getElementById('fms-explain');
+        if (explEl) {
+          explEl.textContent = sc.note + (currentMode !== 'baseline' ? ' By M+6, scenario is ~' + sM6 + 'd RUL vs ~' + bM6 + 'd baseline (Δ ' + Math.abs(lost) + 'd).' : ' X-axis: months forward; Y-axis: remaining useful life in days.');
+        }
+      }
+
+      document.querySelectorAll('.fms-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+          document.querySelectorAll('.fms-btn').forEach(b => b.classList.remove('active'));
+          this.classList.add('active');
+          currentMode = this.dataset.mode;
+          renderFms();
+        });
+      });
+
+      const rackSel = document.getElementById('degr-rack-select');
+      if (rackSel) rackSel.addEventListener('change', () => setTimeout(renderFms, 150));
+      setTimeout(renderFms, 700);
+    }
+    // ── / Failure Mode Selector ────────────────────────────────────────────
+
+    // ── Maintenance Planner (Gantt) ──────────────────────────────────────
+    function initMaintenancePlanner(racks) {
+      var container = document.getElementById('maint-planner');
+      if (!container) return;
+      var WEEKS = 8;
+      var weekLabels = ['W1 (now)','W2','W3','W4','W5','W6','W7','W8'];
+
+      // Actions library — different per tag / tier
+      var ACTIONS = {
+        'coolant-critical':  ['Drain coolant loop + replace QD connectors', 'Emergency CDU bypass + full leak test', 'Swap heat exchangers + pressure re-cert'],
+        'coolant-watch':     ['Flush coolant circuit + inspect seals', 'Replace quick-disconnect fittings', 'Re-calibrate flow sensors + top-up coolant'],
+        'coolant-elevated':  ['Coolant quality test + flow balance', 'Fan bearing inspection + lube'],
+        'coolant-stable':    ['Scheduled coolant sampling', 'Thermal paste refresh on hot chips'],
+        'gpu-overheat':      ['Flash GPU firmware v2.14 + thermal re-paste', 'Replace thermal pads + airflow baffle install', 'GPU power cap 85% + monitor 48h'],
+        'gpu-ok':            ['GPU firmware update (batch)', 'Fan filter cleaning + airflow check'],
+        'psu-watch':         ['PSU capacitor test + replace degraded units', 'Power rail balancing + UPS failover test'],
+        'psu-ok':            ['Scheduled PSU efficiency audit', 'Cable management + IR scan'],
+        'new-hw':            ['Quarterly burn-in verification', 'Baseline calibration + asset tag update'],
+        'default':           ['General preventive inspection', 'Firmware + config audit']
+      };
+
+      function pickAction(tag, idx) {
+        var pool = ACTIONS[tag] || ACTIONS['default'];
+        return pool[idx % pool.length];
+      }
+
+      // Sort by RUL, take top 14 so we cover all tiers
+      var sorted = (racks || []).slice().sort(function(a, b) { return a.rul - b.rul; }).slice(0, 14);
+
+      function scheduleRack(rack, idx) {
+        var rul = rack.rul;
+        var score = rack.score || 0;
+        var tag = rack.tag || 'default';
+        var startWeek, duration, tier, color, action;
+
+        if (rul < 30) {
+          // Emergency: stagger across W1-W2 to avoid overloading crew
+          startWeek = idx < 2 ? 0 : 1;
+          duration = score > 80 ? 2 : 1;
+          tier = 'Emergency';
+          color = '#f85149';
+          action = pickAction(tag, idx);
+        } else if (rul < 60) {
+          // Urgent: spread W1-W4 based on RUL
+          startWeek = Math.min(3, Math.max(0, Math.floor((rul - 30) / 8)));
+          duration = score > 55 ? 2 : 1;
+          tier = 'Urgent';
+          color = '#d29922';
+          action = pickAction(tag, idx);
+        } else if (rul < 120) {
+          // Planned: W3-W6
+          startWeek = Math.min(5, Math.max(2, Math.floor((rul - 60) / 16) + 2));
+          duration = 1;
+          tier = 'Planned';
+          color = '#388bfd';
+          action = pickAction(tag, idx);
+        } else {
+          // Preventive: W5-W8
+          startWeek = Math.min(7, Math.max(4, Math.floor(rul / 65)));
+          duration = 1;
+          tier = 'Preventive';
+          color = '#3fb950';
+          action = pickAction(tag, idx);
+        }
+        if (startWeek + duration > WEEKS) duration = WEEKS - startWeek;
+        return { rack: rack, startWeek: startWeek, duration: Math.max(1, duration), tier: tier, color: color, action: action, tag: tag };
+      }
+
+      var scheduled = sorted.map(scheduleRack);
+
+      // Count by tier for summary
+      var tierCounts = { Emergency: 0, Urgent: 0, Planned: 0, Preventive: 0 };
+      scheduled.forEach(function(s) { tierCounts[s.tier]++; });
+
+      var html = '<div style="display:flex;gap:16px;margin-bottom:12px;flex-wrap:wrap;">';
+      html += '<span style="font-size:0.72rem;background:rgba(248,81,73,0.15);color:#ff7b72;padding:4px 10px;border-radius:6px;border:1px solid rgba(248,81,73,0.3);">' + tierCounts.Emergency + ' emergency</span>';
+      html += '<span style="font-size:0.72rem;background:rgba(210,153,34,0.15);color:#f0b429;padding:4px 10px;border-radius:6px;border:1px solid rgba(210,153,34,0.3);">' + tierCounts.Urgent + ' urgent</span>';
+      html += '<span style="font-size:0.72rem;background:rgba(56,139,253,0.15);color:#79c0ff;padding:4px 10px;border-radius:6px;border:1px solid rgba(56,139,253,0.3);">' + tierCounts.Planned + ' planned</span>';
+      html += '<span style="font-size:0.72rem;background:rgba(63,185,80,0.12);color:#56d4a3;padding:4px 10px;border-radius:6px;border:1px solid rgba(63,185,80,0.3);">' + tierCounts.Preventive + ' preventive</span>';
+      html += '</div>';
+
+      html += '<table class="mp-gantt"><thead><tr><th class="mp-th-rack">Rack</th>';
+      for (var w = 0; w < WEEKS; w++) html += '<th>' + weekLabels[w] + '</th>';
+      html += '</tr></thead><tbody>';
+
+      scheduled.forEach(function(item) {
+        var r = item.rack;
+        var label = r.rackId.replace('SITE-01-', '');
+        html += '<tr><td class="mp-td-rack" style="color:' + item.color + ';">' + label + '</td>';
+        for (var w = 0; w < WEEKS; w++) {
+          html += '<td>';
+          if (w === 0) html += '<div class="mp-today" style="left:12%;"></div>';
+          if (w === item.startWeek) {
+            var totalW = item.duration * 100 - 8;
+            var barLabel = item.tier.charAt(0) + ' · ' + item.action.split('+')[0].split('·')[0].trim();
+            if (barLabel.length > 28) barLabel = barLabel.substring(0, 26) + '…';
+            var tooltip = label + ' | ' + item.tier + ' | RUL ' + Math.round(r.rul) + 'd | Risk ' + r.score + ' | ' + item.action;
+            html += '<div class="mp-bar" style="left:4%;width:' + totalW + '%;background:' + item.color + ';" title="' + tooltip + '">' + barLabel + '</div>';
+          }
+          html += '</td>';
+        }
+        html += '</tr>';
+      });
+
+      html += '</tbody></table>';
+      container.innerHTML = html;
+    }
+    // ── / Maintenance Planner ────────────────────────────────────────────
+
   </script>
 </body>
 </html>
